@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎄 Новогодний Адвент-Календарь</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>🎄 Загадочный Адвент-Календарь</title>
     <style>
         * {
             margin: 0;
@@ -13,25 +12,24 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            max-width: 900px;
-            margin: 0 auto;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
+            margin-bottom: 40px;
         }
 
         .header h1 {
@@ -40,85 +38,65 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .current-date {
+        .header p {
             font-size: 1.2em;
-            margin-top: 10px;
-            color: #FFD700;
+            opacity: 0.9;
         }
 
         .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
             margin-bottom: 30px;
         }
 
-        .day-button {
-            aspect-ratio: 1;
-            border: none;
+        .window {
+            width: 120px;
+            height: 120px;
             border-radius: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+            font-size: 1.1em;
         }
 
-        .day-image {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 5px;
-            object-fit: contain;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        .window.completed {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
 
-        .day-button.available {
+        .window.available {
             background: linear-gradient(45deg, #FFD700, #FFA500);
-            color: #1e3c72;
+            color: #333;
             box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
 
-        .day-button.available:hover {
-            transform: translateY(-3px) scale(1.05);
+        .window.available:hover {
+            transform: translateY(-5px) scale(1.05);
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
         }
 
-        .day-button.completed {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .day-button.failed {
-            background: linear-gradient(45deg, #f44336, #d32f2f);
-            color: white;
-        }
-
-        .day-button.future {
+        .window.locked {
             background: linear-gradient(45deg, #666, #888);
             color: #ccc;
             cursor: not-allowed;
-            opacity: 0.5;
+            opacity: 0.6;
         }
 
-        .day-button.locked {
-            background: linear-gradient(45deg, #666, #888);
-            color: #ccc;
-            cursor: not-allowed;
-            opacity: 0.7;
+        .window-number {
+            font-size: 1.5em;
+            margin-bottom: 5px;
         }
 
-        .day-number {
-            font-size: 0.9em;
-            font-weight: bold;
-            margin-top: 2px;
+        .window-emoji {
+            font-size: 2em;
+            margin-bottom: 5px;
         }
 
         .modal {
@@ -128,41 +106,41 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.8);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             padding: 30px;
             border-radius: 20px;
             text-align: center;
             max-width: 90%;
-            width: 400px;
+            width: 500px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             border: 3px solid #FFD700;
         }
 
-        .modal-image {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-
         .modal h2 {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-size: 1.8em;
             color: #FFD700;
         }
 
-        .modal p {
+        .modal-emoji {
+            font-size: 4em;
             margin-bottom: 20px;
-            font-size: 1.1em;
+        }
+
+        .riddle-text {
+            font-size: 1.3em;
+            margin-bottom: 25px;
             line-height: 1.5;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
         }
 
         .answer-form {
@@ -171,13 +149,14 @@
 
         .answer-input {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             border: 2px solid #FFD700;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
-            font-size: 1em;
-            margin-bottom: 10px;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
         .answer-input::placeholder {
@@ -186,9 +165,9 @@
 
         .submit-button {
             background: #FFD700;
-            color: #1e3c72;
+            color: #2c3e50;
             border: none;
-            padding: 12px 30px;
+            padding: 15px 40px;
             border-radius: 25px;
             font-size: 1.1em;
             font-weight: bold;
@@ -202,34 +181,24 @@
             box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
         }
 
-        .submit-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .attempts-counter {
-            margin: 10px 0;
-            font-size: 0.9em;
-            color: #FFD700;
-        }
-
         .result-message {
-            margin: 15px 0;
-            padding: 10px;
+            margin: 20px 0;
+            padding: 15px;
             border-radius: 10px;
             font-weight: bold;
+            font-size: 1.1em;
         }
 
         .result-success {
             background: rgba(76, 175, 80, 0.3);
             color: #4CAF50;
+            border: 2px solid #4CAF50;
         }
 
         .result-error {
             background: rgba(244, 67, 54, 0.3);
             color: #f44336;
+            border: 2px solid #f44336;
         }
 
         .close-button {
@@ -251,45 +220,30 @@
         }
 
         .progress {
-            text-align: center;
-            margin-bottom: 20px;
             font-size: 1.2em;
-            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.1);
             padding: 15px;
             border-radius: 15px;
-            backdrop-filter: blur(10px);
+            display: inline-block;
         }
 
-        @media (max-width: 768px) {
-            .calendar {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 10px;
-            }
-            
-            .day-button {
-                font-size: 1em;
-                border-radius: 12px;
-            }
-            
-            .day-image {
-                width: 35px;
-                height: 35px;
+        @media (max-width: 600px) {
+            .window {
+                width: 100px;
+                height: 100px;
             }
             
             .header h1 {
                 font-size: 2em;
             }
-        }
-
-        @media (max-width: 480px) {
-            .calendar {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
+            
+            .modal-content {
+                padding: 20px;
             }
             
-            .day-image {
-                width: 30px;
-                height: 30px;
+            .riddle-text {
+                font-size: 1.1em;
             }
         }
     </style>
@@ -297,361 +251,219 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎄 Новогодний Адвент-Календарь</h1>
-            <p>Открывай по одному окошку каждый день и находи волшебные сюрпризы!</p>
-            <div class="current-date" id="current-date"></div>
+            <h1>🎯 Загадочный Квест</h1>
+            <p>Разгадай все загадки, чтобы открыть все окошки!</p>
         </div>
 
         <div class="progress">
-            🎁 Пройдено: <span id="completed-count">0</span> из 31 дня до Нового Года!
+            Пройдено: <span id="completed-count">0</span> из 5 загадок
         </div>
 
-        <div class="calendar" id="calendar">
-            <!-- Кнопки будут сгенерированы JavaScript -->
+        <div class="calendar">
+            <!-- Окошки будут сгенерированы JavaScript -->
         </div>
     </div>
 
     <div class="modal" id="modal">
         <div class="modal-content">
-            <img id="modal-image" class="modal-image" src="" alt="">
-            <h2 id="modal-title">Окошко <span id="modal-day">1</span></h2>
-            <div id="modal-content">
-                <!-- Контент будет динамически меняться -->
-            </div>
-            <div id="answer-section" style="display: none;">
+            <div class="modal-emoji" id="modal-emoji"></div>
+            <h2>Загадка <span id="modal-number">1</span></h2>
+            <div class="riddle-text" id="riddle-text"></div>
+            
+            <div id="answer-section">
                 <div class="answer-form">
                     <input type="text" id="answer-input" class="answer-input" placeholder="Введите ваш ответ...">
-                    <div class="attempts-counter" id="attempts-counter">
-                        Осталось попыток: 3
-                    </div>
                     <button class="submit-button" onclick="checkAnswer()">Проверить ответ</button>
                 </div>
             </div>
+            
             <div id="result-section" style="display: none;">
                 <div class="result-message" id="result-message"></div>
             </div>
+            
             <button class="close-button" onclick="closeModal()">Закрыть</button>
         </div>
     </div>
 
     <script>
-        // Новогодние эмодзи для каждого дня
-        const dayImages = {
-            1: "🎄", 2: "🎅", 3: "🤶", 4: "🦌", 5: "🍪", 
-            6: "🥛", 7: "🎁", 8: "🔔", 9: "🌟", 10: "❄️",
-            11: "⛄", 12: "🕯️", 13: "🎶", 14: "🛷", 15: "🧦",
-            16: "🏠", 17: "🌠", 18: "🍬", 19: "🎊", 20: "🎉",
-            21: "🕒", 22: "🌟", 23: "🦌", 24: "🎄", 25: "⭐",
-            26: "🔴", 27: "🟢", 28: "⚪", 29: "🟡", 30: "🔵",
-            31: "🎆"
-        };
-
-        // Новогодние загадки для каждого дня
-        const dayRiddles = {
-            1: "Стою я в лесу на одной ноге, сверху шишки, снизу мишки. Что это?",
-            2: "Бородой трясёт, за носы всех берёт. Кто он?",
-            3: "В красной шубке, с мешком подарков, всех детей она поздравляет. Кто это?",
-            4: "По небу летает, подарки развозит, с колокольчиком на шее. Кто это?",
-            5: "Круглое, сладкое, с изюмом, его оставляют Деду Морозу. Что это?",
-            6: "Белое, холодное, его пьют с печеньем у камина. Что это?",
-            7: "В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?",
-            8: "Звенит весело, всех на праздник зовёт. Что это?",
-            9: "На верхушке ёлки сияет ярко. Что это?",
-            10: "Кружатся в танце, покрывают всё белым. Что это?",
-            11: "Из снега слеплен, нос из морковки, не мёрзнет совсем. Кто это?",
-            12: "Тихо горит, создаёт уют, символ надежды. Что это?",
-            13: "Весело звучит, создаёт настроение праздника. Что это?",
-            14: "На ней катаются с горки, весело крича. Что это?",
-            15: "Висит у камина, ждёт подарков. Что это?",
-            16: "Тёплый и уютный, пахнет печеньем и ёлкой. Что это?",
-            17: "Яркая вспышка в ночном небе. Что это?",
-            18: "Сладкая, разноцветная, в фантике. Что это?",
-            19: "Круглый, блестящий, летает по комнате. Что это?",
-            20: "Громко хлопает, рассыпается блёстками. Что это?",
-            21: "Тикает, отсчитывает время до праздника. Что это?",
-            22: "Маленькая, но яркая, как алмаз на небе. Что это?",
-            23: "С рогами, но не бык, летает, но не птица. Кто это?",
-            24: "Зелёная, пушистая, пахнет лесом. Что это?",
-            25: "Яркая точка на детском рисунке. Что это?",
-            26: "Цвет носочков у эльфа. Какой цвет?",
-            27: "Цвет новогодней ёлки. Какой цвет?",
-            28: "Цвет снега. Какой цвет?",
-            29: "Цвет мандарина. Какой цвет?",
-            30: "Цвет зимнего неба. Какой цвет?",
-            31: "Яркий фейерверк в ночном небе. Что это?"
-        };
-
-        // Ответы на загадки
-        const dayAnswers = {
-            1: "ёлка", 2: "Дед Мороз", 3: "Снегурочка", 4: "олень", 5: "пряник",
-            6: "молоко", 7: "подарок", 8: "колокольчик", 9: "звезда", 10: "снежинки",
-            11: "снеговик", 12: "свеча", 13: "музыка", 14: "санки", 15: "носок",
-            16: "дом", 17: "метеор", 18: "конфета", 19: "серпантин", 20: "хлопушка",
-            21: "часы", 22: "звезда", 23: "олень", 24: "ёлка", 25: "звезда",
-            26: "красный", 27: "зелёный", 28: "белый", 29: "оранжевый", 30: "синий",
-            31: "фейерверк"
-        };
-
-        // Текущее состояние
-        let currentState = {
-            currentDay: 1,
-            attempts: 3,
-            selectedDay: null
-        };
-
-        // Инициализация Telegram Web App
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
-
-        // Получение прогресса пользователя
-        function getUserProgress() {
-            const userId = tg.initDataUnsafe.user?.id || 'default';
-            const saved = localStorage.getItem(`advent_progress_${userId}`);
-            return saved ? JSON.parse(saved) : {
-                completedDays: [],
-                failedDays: [],
-                currentLevel: 1,
-                attempts: {}
-            };
-        }
-
-        // Сохранение прогресса пользователя
-        function saveUserProgress(progress) {
-            const userId = tg.initDataUnsafe.user?.id || 'default';
-            localStorage.setItem(`advent_progress_${userId}`, JSON.stringify(progress));
-        }
-
-        // Получение текущей даты и доступного дня
-        function getCurrentDay() {
-            const now = new Date();
-            const currentMonth = now.getMonth() + 1; // 1-12
-            const currentDate = now.getDate(); // 1-31
-            
-            // Если это декабрь, возвращаем текущую дату (но не больше 31)
-            if (currentMonth === 12) {
-                return Math.min(currentDate, 31);
+        // Данные загадок
+        const riddles = [
+            {
+                number: 1,
+                emoji: "🎄",
+                question: "Зимой и летом одним цветом. Что это?",
+                answer: "ель"
+            },
+            {
+                number: 2,
+                emoji: "⛄",
+                question: "Из снега слеплен, нос из морковки, не мёрзнет совсем. Кто это?",
+                answer: "снеговик"
+            },
+            {
+                number: 3,
+                emoji: "🎁",
+                question: "В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?",
+                answer: "подарок"
+            },
+            {
+                number: 4,
+                emoji: "❄️",
+                question: "Кружатся в танце, покрывают всё белым. Что это?",
+                answer: "снежинки"
+            },
+            {
+                number: 5,
+                emoji: "🎅",
+                question: "Бородой трясёт, за носы всех берёт. Кто он?",
+                answer: "Дед Мороз"
             }
-            
-            // Если это не декабрь, начинаем с 1 декабря
-            return 1;
+        ];
+
+        // Состояние игры
+        let gameState = {
+            currentLevel: 1,
+            completedLevels: [],
+            currentRiddle: null
+        };
+
+        // Загрузка состояния из localStorage
+        function loadGameState() {
+            const saved = localStorage.getItem('adventGameState');
+            if (saved) {
+                gameState = JSON.parse(saved);
+            }
+            updateProgress();
         }
 
-        // Создание календаря
-        function createCalendar() {
-            const calendar = document.getElementById('calendar');
-            const completedCount = document.getElementById('completed-count');
-            const currentDateElement = document.getElementById('current-date');
-            
-            const userProgress = getUserProgress();
-            const today = getCurrentDay();
-            
-            // Обновляем отображение текущей даты
-            const now = new Date();
-            currentDateElement.textContent = `Сегодня: ${now.toLocaleDateString('ru-RU')}`;
-            
-            completedCount.textContent = userProgress.completedDays.length;
+        // Сохранение состояния в localStorage
+        function saveGameState() {
+            localStorage.setItem('adventGameState', JSON.stringify(gameState));
+        }
+
+        // Обновление счетчика прогресса
+        function updateProgress() {
+            document.getElementById('completed-count').textContent = gameState.completedLevels.length;
+        }
+
+        // Создание окошек
+        function createWindows() {
+            const calendar = document.querySelector('.calendar');
             calendar.innerHTML = '';
-            
-            for (let day = 1; day <= 31; day++) {
-                const button = document.createElement('button');
-                button.className = 'day-button';
+
+            riddles.forEach(riddle => {
+                const window = document.createElement('div');
+                window.className = 'window';
                 
-                const image = document.createElement('div');
-                image.className = 'day-image';
-                image.style.fontSize = '40px';
-                image.textContent = dayImages[day];
+                const emoji = document.createElement('div');
+                emoji.className = 'window-emoji';
+                emoji.textContent = riddle.emoji;
                 
                 const number = document.createElement('div');
-                number.className = 'day-number';
-                number.textContent = day;
+                number.className = 'window-number';
+                number.textContent = riddle.number;
                 
-                button.appendChild(image);
-                button.appendChild(number);
-                
-                // Определяем состояние кнопки
-                if (userProgress.completedDays.includes(day)) {
-                    button.classList.add('completed');
-                } else if (userProgress.failedDays.includes(day)) {
-                    button.classList.add('failed');
-                } else if (day > today) {
-                    button.classList.add('future');
-                } else if (day === userProgress.currentLevel) {
-                    button.classList.add('available');
-                } else if (day < userProgress.currentLevel) {
-                    button.classList.add('locked');
+                window.appendChild(emoji);
+                window.appendChild(number);
+
+                // Определяем состояние окошка
+                if (gameState.completedLevels.includes(riddle.number)) {
+                    window.classList.add('completed');
+                } else if (riddle.number === gameState.currentLevel) {
+                    window.classList.add('available');
                 } else {
-                    button.classList.add('locked');
+                    window.classList.add('locked');
                 }
-                
-                // Разрешаем клик только на доступные и будущие дни (для просмотра)
-                if (day <= today) {
-                    button.addEventListener('click', () => handleDayClick(day));
-                } else {
-                    button.addEventListener('click', () => showFutureDay(day));
+
+                // Добавляем обработчик клика
+                if (riddle.number <= gameState.currentLevel) {
+                    window.addEventListener('click', () => openRiddle(riddle));
                 }
-                
-                calendar.appendChild(button);
-            }
+
+                calendar.appendChild(window);
+            });
         }
 
-        // Показ будущего дня
-        function showFutureDay(day) {
+        // Открытие загадки
+        function openRiddle(riddle) {
             const modal = document.getElementById('modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalContent = document.getElementById('modal-content');
-            const modalImage = document.getElementById('modal-image');
-            const answerSection = document.getElementById('answer-section');
-            const resultSection = document.getElementById('result-section');
-            
-            modalDay.textContent = day;
-            modalImage.style.fontSize = '80px';
-            modalImage.textContent = dayImages[day];
-            
-            modalTitle.innerHTML = `🔒 Окошко ${day}`;
-            modalContent.innerHTML = `
-                <p>Это окошко откроется ${day} декабря!</p>
-                <p>Возвращайтесь в этот день чтобы разгадать загадку!</p>
-            `;
-            
-            answerSection.style.display = 'none';
-            resultSection.style.display = 'none';
-            modal.style.display = 'flex';
-        }
-
-        // Обработчик клика по дню
-        function handleDayClick(day) {
-            const modal = document.getElementById('modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalContent = document.getElementById('modal-content');
-            const modalImage = document.getElementById('modal-image');
+            const modalNumber = document.getElementById('modal-number');
+            const modalEmoji = document.getElementById('modal-emoji');
+            const riddleText = document.getElementById('riddle-text');
             const answerSection = document.getElementById('answer-section');
             const resultSection = document.getElementById('result-section');
             const answerInput = document.getElementById('answer-input');
-            const attemptsCounter = document.getElementById('attempts-counter');
-            
-            const userProgress = getUserProgress();
-            const today = getCurrentDay();
-            
-            currentState.selectedDay = day;
-            currentState.attempts = userProgress.attempts[day] || 3;
-            
-            modalDay.textContent = day;
-            modalImage.style.fontSize = '80px';
-            modalImage.textContent = dayImages[day];
+
+            gameState.currentRiddle = riddle.number;
+
+            modalNumber.textContent = riddle.number;
+            modalEmoji.textContent = riddle.emoji;
+            riddleText.textContent = riddle.question;
             answerInput.value = '';
-            
-            if (userProgress.completedDays.includes(day)) {
-                // Уже пройдено
-                modalTitle.innerHTML = `✅ Окошко ${day}`;
-                modalContent.innerHTML = `
-                    <strong>Загадка:</strong> ${dayRiddles[day]}<br><br>
-                    <strong>Ответ:</strong> ${dayAnswers[day]}
-                `;
+
+            // Показываем/скрываем секции в зависимости от состояния
+            if (gameState.completedLevels.includes(riddle.number)) {
+                // Уже пройдена
                 answerSection.style.display = 'none';
-                resultSection.style.display = 'none';
-            } else if (userProgress.failedDays.includes(day)) {
-                // Провалено
-                modalTitle.innerHTML = `❌ Окошко ${day}`;
-                modalContent.innerHTML = `
-                    <strong>Загадка:</strong> ${dayRiddles[day]}<br><br>
-                    <strong>Правильный ответ:</strong> ${dayAnswers[day]}<br><br>
-                    <em>Попытки закончились!</em>
-                `;
-                answerSection.style.display = 'none';
-                resultSection.style.display = 'none';
-            } else if (day === userProgress.currentLevel && day <= today) {
-                // Доступно для решения
-                modalTitle.innerHTML = `🎁 Окошко ${day}`;
-                modalContent.innerHTML = `
-                    <strong>Загадка дня:</strong><br>
-                    ${dayRiddles[day]}
-                `;
-                attemptsCounter.textContent = `Осталось попыток: ${currentState.attempts}`;
+                resultSection.style.display = 'block';
+                document.getElementById('result-message').className = 'result-message result-success';
+                document.getElementById('result-message').innerHTML = `✅ Вы уже разгадали эту загадку!<br>Ответ: ${riddle.answer}`;
+            } else if (riddle.number === gameState.currentLevel) {
+                // Доступна для решения
                 answerSection.style.display = 'block';
                 resultSection.style.display = 'none';
-            } else if (day < userProgress.currentLevel) {
-                // Еще не разгадано, но доступно
-                modalTitle.innerHTML = `🔒 Окошко ${day}`;
-                modalContent.innerHTML = `
-                    <p>Сначала разгадайте окошко ${userProgress.currentLevel}!</p>
-                `;
+            } else {
+                // Еще не доступна
                 answerSection.style.display = 'none';
-                resultSection.style.display = 'none';
+                resultSection.style.display = 'block';
+                document.getElementById('result-message').className = 'result-message result-error';
+                document.getElementById('result-message').textContent = 'Сначала разгадайте предыдущие загадки!';
             }
-            
+
             modal.style.display = 'flex';
         }
 
         // Проверка ответа
         function checkAnswer() {
             const answerInput = document.getElementById('answer-input');
-            const attemptsCounter = document.getElementById('attempts-counter');
             const resultSection = document.getElementById('result-section');
             const resultMessage = document.getElementById('result-message');
             const answerSection = document.getElementById('answer-section');
-            const submitButton = document.querySelector('.submit-button');
-            
+
             const userAnswer = answerInput.value.trim().toLowerCase();
-            const correctAnswer = dayAnswers[currentState.selectedDay].toLowerCase();
-            const userProgress = getUserProgress();
-            
+            const currentRiddle = riddles.find(r => r.number === gameState.currentRiddle);
+
             if (!userAnswer) {
                 return;
             }
-            
-            // Уменьшаем количество попыток
-            currentState.attempts--;
-            userProgress.attempts[currentState.selectedDay] = currentState.attempts;
-            
-            if (userAnswer === correctAnswer) {
+
+            if (userAnswer === currentRiddle.answer.toLowerCase()) {
                 // Правильный ответ
                 resultMessage.className = 'result-message result-success';
-                resultMessage.innerHTML = '🎉 Правильно! Окошко открыто!';
-                
-                // Добавляем день в пройденные
-                if (!userProgress.completedDays.includes(currentState.selectedDay)) {
-                    userProgress.completedDays.push(currentState.selectedDay);
+                resultMessage.innerHTML = '🎉 Правильно! Загадка разгадана!';
+
+                // Обновляем состояние игры
+                if (!gameState.completedLevels.includes(currentRiddle.number)) {
+                    gameState.completedLevels.push(currentRiddle.number);
                 }
-                
-                // Открываем следующий день
-                userProgress.currentLevel = Math.min(currentState.selectedDay + 1, 31);
-                
+                gameState.currentLevel = Math.min(currentRiddle.number + 1, riddles.length);
+
+                // Сохраняем состояние
+                saveGameState();
+                updateProgress();
+
                 answerSection.style.display = 'none';
                 resultSection.style.display = 'block';
-                submitButton.disabled = true;
-                
-            } else if (currentState.attempts > 0) {
-                // Неправильный ответ, но есть еще попытки
-                resultMessage.className = 'result-message result-error';
-                resultMessage.innerHTML = `❌ Неправильно! Попробуйте еще раз.`;
-                attemptsCounter.textContent = `Осталось попыток: ${currentState.attempts}`;
-                resultSection.style.display = 'block';
-                
+
             } else {
-                // Попытки закончились
+                // Неправильный ответ
                 resultMessage.className = 'result-message result-error';
-                resultMessage.innerHTML = `❌ Попытки закончились!<br>Правильный ответ: ${dayAnswers[currentState.selectedDay]}`;
-                
-                // Добавляем день в проваленные
-                if (!userProgress.failedDays.includes(currentState.selectedDay)) {
-                    userProgress.failedDays.push(currentState.selectedDay);
-                }
-                
-                answerSection.style.display = 'none';
+                resultMessage.textContent = '❌ Неправильно! Попробуйте еще раз.';
                 resultSection.style.display = 'block';
-                submitButton.disabled = true;
             }
-            
-            // Сохраняем прогресс
-            saveUserProgress(userProgress);
-            
-            // Обновляем attempts в хранилище
-            userProgress.attempts[currentState.selectedDay] = currentState.attempts;
-            saveUserProgress(userProgress);
         }
 
-        // Обработчик нажатия Enter в поле ввода
+        // Обработчик нажатия Enter
         document.getElementById('answer-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 checkAnswer();
@@ -661,18 +473,20 @@
         // Закрытие модального окна
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
-            createCalendar(); // Обновляем календарь после закрытия
+            createWindows(); // Обновляем окошки
         }
+
+        // Закрытие модального окна по клику вне его
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
 
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            createCalendar();
-            
-            document.getElementById('modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeModal();
-                }
-            });
+            loadGameState();
+            createWindows();
         });
     </script>
 </body>
