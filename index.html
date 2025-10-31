@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎄 Адвент-Календарь</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .day-button {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .day-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .day-button.available {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #1e3c72;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .day-button.available:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .day-button.completed {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .day-button.locked {
+            background: linear-gradient(45deg, #666, #888);
+            color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 1.5em;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .modal p {
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .close-button {
+            background: #FFD700;
+            color: #1e3c72;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .progress {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 600px) {
+            .calendar {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .day-button {
+                font-size: 1em;
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎄 Адвент-Календарь</h1>
+            <p>Открывай по одному окошку каждый день!</p>
+        </div>
+
+        <div class="progress">
+            Пройдено: <span id="completed-count">0</span> из 31
+        </div>
+
+        <div class="calendar" id="calendar">
+            <!-- Кнопки будут сгенерированы JavaScript -->
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Окошко <span id="modal-day">1</span></h2>
+            <p id="modal-content">Здесь будет загадка или сообщение!</p>
+            <button class="close-button" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
+        // Данные пользователя (в реальном приложении получать с сервера)
+        let userProgress = {
+            currentDay: 1,
+            completedDays: [1, 2, 3], // Пример: пройдены дни 1, 2, 3
+            riddles: {
+                1: { question: "Без окон, без дверей, полна горница людей.", answer: "арбуз" },
+                2: { question: "Висит груша — нельзя скушать.", answer: "лампочка" },
+                3: { question: "Зимой и летом одним цветом.", answer: "ель" },
+                // Добавьте остальные загадки до 31
+            }
+        };
+
+        // Создание календаря
+        function createCalendar() {
+            const calendar = document.getElementById('calendar');
+            const completedCount = document.getElementById('completed-count');
+            
+            // Обновляем счетчик пройденных дней
+            completedCount.textContent = userProgress.completedDays.length;
+            
+            // Создаем 31 кнопку
+            for (let day = 1; day <= 31; day++) {
+                const button = document.createElement('button');
+                button.className = 'day-button';
+                button.textContent = day;
+                
+                // Определяем состояние кнопки
+                if (userProgress.completedDays.includes(day)) {
+                    button.classList.add('completed');
+                    button.innerHTML = `✅<br>${day}`;
+                } else if (day === userProgress.currentDay) {
+                    button.classList.add('available');
+                    button.innerHTML = `🎁<br>${day}`;
+                } else {
+                    button.classList.add('locked');
+                    button.innerHTML = `🔒<br>${day}`;
+                }
+                
+                // Добавляем обработчик клика
+                button.addEventListener('click', () => handleDayClick(day));
+                
+                calendar.appendChild(button);
+            }
+        }
+
+        // Обработчик клика по дню
+        function handleDayClick(day) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDay = document.getElementById('modal-day');
+            const modalContent = document.getElementById('modal-content');
+            
+            modalDay.textContent = day;
+            
+            if (userProgress.completedDays.includes(day)) {
+                // Показываем пройденную загадку
+                modalTitle.innerHTML = `✅ Окошко ${day}`;
+                modalContent.innerHTML = `
+                    <strong>Загадка:</strong> ${userProgress.riddles[day]?.question || 'Загадка'}<br><br>
+                    <strong>Ответ:</strong> ${userProgress.riddles[day]?.answer || 'Ответ'}
+                `;
+            } else if (day === userProgress.currentDay) {
+                // Показываем текущую загадку
+                modalTitle.innerHTML = `🎁 Окошко ${day}`;
+                modalContent.innerHTML = `
+                    <strong>Загадка:</strong> ${userProgress.riddles[day]?.question || 'Загадка'}<br><br>
+                    <em>Отправь ответ в чат с ботом!</em>
+                `;
+            } else {
+                // Показываем сообщение о блокировке
+                modalTitle.innerHTML = `🔒 Окошко ${day}`;
+                modalContent.textContent = 'Это окошко еще закрыто! Сначала разгадай предыдущие загадки.';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Создаем снежинки для атмосферы
+        function createSnowflakes() {
+            const body = document.querySelector('body');
+            const snowflakes = ['❄️', '🌨️', '✨', '⭐'];
+            
+            for (let i = 0; i < 20; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+                body.appendChild(snowflake);
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            createCalendar();
+            createSnowflakes();
+            
+            // Закрытие модального окна по клику вне его
+            document.getElementById('modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        });
+
+        // Функция для обновления прогресса (будет вызываться из бота)
+        window.updateProgress = function(newProgress) {
+            userProgress = { ...userProgress, ...newProgress };
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+            createCalendar();
+        };
+
+        // Отправка данных в бота при необходимости
+        function sendDataToBot(data) {
+            if (tg.initDataUnsafe.user) {
+                tg.sendData(JSON.stringify(data));
+            }
+        }
+    </script>
+</body>
+</html>
