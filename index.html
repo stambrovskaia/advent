@@ -1,10 +1,9 @@
-<!-- trigger deploy -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎄 Адвент-Календарь</title>
+    <title>🎄 Новогодний Адвент-Календарь</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -15,14 +14,14 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: white;
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -30,6 +29,9 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
@@ -38,15 +40,10 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 30px;
         }
 
@@ -59,26 +56,22 @@
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
-        .day-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-
-        .day-button:hover::before {
-            transform: translateX(100%);
+        .day-image {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+            object-fit: contain;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
         }
 
         .day-button.available {
@@ -88,8 +81,8 @@
         }
 
         .day-button.available:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
         }
 
         .day-button.completed {
@@ -101,20 +94,13 @@
             background: linear-gradient(45deg, #666, #888);
             color: #ccc;
             cursor: not-allowed;
-            opacity: 0.6;
+            opacity: 0.7;
         }
 
-        .snowflake {
-            position: absolute;
-            color: white;
-            font-size: 1.5em;
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            to {
-                transform: translateY(100vh) rotate(360deg);
-            }
+        .day-number {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 2px;
         }
 
         .modal {
@@ -124,7 +110,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -137,16 +123,26 @@
             text-align: center;
             max-width: 90%;
             width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 3px solid #FFD700;
+        }
+
+        .modal-image {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
 
         .modal h2 {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 1.8em;
+            color: #FFD700;
         }
 
         .modal p {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 1.1em;
             line-height: 1.5;
         }
@@ -171,22 +167,43 @@
         .progress {
             text-align: center;
             margin-bottom: 20px;
-            font-size: 1.1em;
+            font-size: 1.2em;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .calendar {
                 grid-template-columns: repeat(4, 1fr);
-                gap: 8px;
+                gap: 10px;
             }
             
             .day-button {
                 font-size: 1em;
-                border-radius: 10px;
+                border-radius: 12px;
+            }
+            
+            .day-image {
+                width: 35px;
+                height: 35px;
             }
             
             .header h1 {
                 font-size: 2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .day-image {
+                width: 30px;
+                height: 30px;
             }
         }
     </style>
@@ -194,12 +211,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎄 Адвент-Календарь</h1>
-            <p>Открывай по одному окошку каждый день!</p>
+            <h1>🎄 Новогодний Адвент-Календарь</h1>
+            <p>Открывай по одному окошку каждый день и находи волшебные сюрпризы!</p>
         </div>
 
         <div class="progress">
-            Пройдено: <span id="completed-count">0</span> из 31
+            🎁 Пройдено: <span id="completed-count">0</span> из 31 дня до Нового Года!
         </div>
 
         <div class="calendar" id="calendar">
@@ -209,6 +226,7 @@
 
     <div class="modal" id="modal">
         <div class="modal-content">
+            <img id="modal-image" class="modal-image" src="" alt="">
             <h2 id="modal-title">Окошко <span id="modal-day">1</span></h2>
             <p id="modal-content">Здесь будет загадка или сообщение!</p>
             <button class="close-button" onclick="closeModal()">Закрыть</button>
@@ -216,21 +234,50 @@
     </div>
 
     <script>
+        // Новогодние эмодзи для каждого дня
+        const dayImages = {
+            1: "🎄", 2: "🎅", 3: "🤶", 4: "🦌", 5: "🍪", 
+            6: "🥛", 7: "🎁", 8: "🔔", 9: "🌟", 10: "❄️",
+            11: "⛄", 12: "🕯️", 13: "🎶", 14: "🛷", 15: "🧦",
+            16: "🏠", 17: "🌠", 18: "🍬", 19: "🎊", 20: "🎉",
+            21: "🕒", 22: "🌟", 23: "🦌", 24: "🎄", 25: "⭐",
+            26: "🔴", 27: "🟢", 28: "⚪", 29: "🟡", 30: "🔵",
+            31: "🎆"
+        };
+
+        // Новогодние загадки для каждого дня
+        const dayRiddles = {
+            1: "Стою я в лесу на одной ноге, сверху шишки, снизу мишки. Что это?",
+            2: "Бородой трясёт, за носы всех берёт. Кто он?",
+            3: "В красной шубке, с мешком подарков, всех детей она поздравляет. Кто это?",
+            4: "По небу летает, подарки развозит, с колокольчиком на шее. Кто это?",
+            5: "Круглое, сладкое, с изюмом, его оставляют Деду Морозу. Что это?",
+            6: "Белое, холодное, его пьют с печеньем у камина. Что это?",
+            7: "В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?",
+            8: "Звенит весело, всех на праздник зовёт. Что это?",
+            9: "На верхушке ёлки сияет ярко. Что это?",
+            10: "Кружатся в танце, покрывают всё белым. Что это?",
+            // ... добавьте остальные загадки до 31
+        };
+
+        // Ответы на загадки
+        const dayAnswers = {
+            1: "ёлка", 2: "Дед Мороз", 3: "Снегурочка", 4: "олень", 5: "пряник",
+            6: "молоко", 7: "подарок", 8: "колокольчик", 9: "звезда", 10: "снежинки"
+            // ... добавьте остальные ответы
+        };
+
         // Инициализация Telegram Web App
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
         
-        // Данные пользователя (в реальном приложении получать с сервера)
+        // Данные пользователя
         let userProgress = {
             currentDay: 1,
-            completedDays: [1, 2, 3], // Пример: пройдены дни 1, 2, 3
-            riddles: {
-                1: { question: "Без окон, без дверей, полна горница людей.", answer: "арбуз" },
-                2: { question: "Висит груша — нельзя скушать.", answer: "лампочка" },
-                3: { question: "Зимой и летом одним цветом.", answer: "ель" },
-                // Добавьте остальные загадки до 31
-            }
+            completedDays: [],
+            riddles: dayRiddles,
+            answers: dayAnswers
         };
 
         // Создание календаря
@@ -238,30 +285,34 @@
             const calendar = document.getElementById('calendar');
             const completedCount = document.getElementById('completed-count');
             
-            // Обновляем счетчик пройденных дней
             completedCount.textContent = userProgress.completedDays.length;
+            calendar.innerHTML = '';
             
-            // Создаем 31 кнопку
             for (let day = 1; day <= 31; day++) {
                 const button = document.createElement('button');
                 button.className = 'day-button';
-                button.textContent = day;
                 
-                // Определяем состояние кнопки
+                const image = document.createElement('div');
+                image.className = 'day-image';
+                image.style.fontSize = '40px';
+                image.textContent = dayImages[day];
+                
+                const number = document.createElement('div');
+                number.className = 'day-number';
+                number.textContent = day;
+                
+                button.appendChild(image);
+                button.appendChild(number);
+                
                 if (userProgress.completedDays.includes(day)) {
                     button.classList.add('completed');
-                    button.innerHTML = `✅<br>${day}`;
                 } else if (day === userProgress.currentDay) {
                     button.classList.add('available');
-                    button.innerHTML = `🎁<br>${day}`;
                 } else {
                     button.classList.add('locked');
-                    button.innerHTML = `🔒<br>${day}`;
                 }
                 
-                // Добавляем обработчик клика
                 button.addEventListener('click', () => handleDayClick(day));
-                
                 calendar.appendChild(button);
             }
         }
@@ -272,25 +323,28 @@
             const modalTitle = document.getElementById('modal-title');
             const modalDay = document.getElementById('modal-day');
             const modalContent = document.getElementById('modal-content');
+            const modalImage = document.getElementById('modal-image');
             
             modalDay.textContent = day;
+            modalImage.style.fontSize = '80px';
+            modalImage.textContent = dayImages[day];
             
             if (userProgress.completedDays.includes(day)) {
-                // Показываем пройденную загадку
                 modalTitle.innerHTML = `✅ Окошко ${day}`;
                 modalContent.innerHTML = `
-                    <strong>Загадка:</strong> ${userProgress.riddles[day]?.question || 'Загадка'}<br><br>
-                    <strong>Ответ:</strong> ${userProgress.riddles[day]?.answer || 'Ответ'}
+                    <strong>Загадка:</strong> ${userProgress.riddles[day] || 'Загадка'}<br><br>
+                    <strong>Ответ:</strong> ${userProgress.answers[day] || 'Ответ'}
                 `;
             } else if (day === userProgress.currentDay) {
-                // Показываем текущую загадку
                 modalTitle.innerHTML = `🎁 Окошко ${day}`;
                 modalContent.innerHTML = `
-                    <strong>Загадка:</strong> ${userProgress.riddles[day]?.question || 'Загадка'}<br><br>
-                    <em>Отправь ответ в чат с ботом!</em>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Загадка:</strong><br>
+                        ${userProgress.riddles[day] || 'Загадка'}
+                    </div>
+                    <em style="color: #FFD700;">Отправь ответ в чат с ботом!</em>
                 `;
             } else {
-                // Показываем сообщение о блокировке
                 modalTitle.innerHTML = `🔒 Окошко ${day}`;
                 modalContent.textContent = 'Это окошко еще закрыто! Сначала разгадай предыдущие загадки.';
             }
@@ -303,29 +357,10 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-        // Создаем снежинки для атмосферы
-        function createSnowflakes() {
-            const body = document.querySelector('body');
-            const snowflakes = ['❄️', '🌨️', '✨', '⭐'];
-            
-            for (let i = 0; i < 20; i++) {
-                const snowflake = document.createElement('div');
-                snowflake.className = 'snowflake';
-                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
-                snowflake.style.left = Math.random() * 100 + 'vw';
-                snowflake.style.animationDuration = (Math.random() * 5 + 5) + 's';
-                snowflake.style.animationDelay = Math.random() * 5 + 's';
-                snowflake.style.opacity = Math.random() * 0.5 + 0.3;
-                body.appendChild(snowflake);
-            }
-        }
-
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             createCalendar();
-            createSnowflakes();
             
-            // Закрытие модального окна по клику вне его
             document.getElementById('modal').addEventListener('click', function(e) {
                 if (e.target === this) {
                     closeModal();
@@ -333,20 +368,13 @@
             });
         });
 
-        // Функция для обновления прогресса (будет вызываться из бота)
+        // Функция для обновления прогресса
         window.updateProgress = function(newProgress) {
             userProgress = { ...userProgress, ...newProgress };
             const calendar = document.getElementById('calendar');
             calendar.innerHTML = '';
             createCalendar();
         };
-
-        // Отправка данных в бота при необходимости
-        function sendDataToBot(data) {
-            if (tg.initDataUnsafe.user) {
-                tg.sendData(JSON.stringify(data));
-            }
-        }
     </script>
 </body>
 </html>
