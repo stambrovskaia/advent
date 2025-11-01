@@ -143,6 +143,15 @@
             border-radius: 10px;
         }
 
+        .riddle-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 3px solid #FFD700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
         .answer-form {
             margin: 20px 0;
         }
@@ -269,6 +278,7 @@
             <div class="modal-emoji" id="modal-emoji"></div>
             <h2>Загадка <span id="modal-number">1</span></h2>
             <div class="riddle-text" id="riddle-text"></div>
+            <img id="riddle-image" class="riddle-image" src="" alt="" style="display: none;">
             
             <div id="answer-section">
                 <div class="answer-form">
@@ -290,21 +300,24 @@
         const riddles = [
             {
                 number: 1,
-                emoji: "🎄",
-                question: "Зимой и летом одним цветом. Что это?",
-                answer: "ель"
+                emoji: "🖼️",
+                question: "Посмотри на картинку и угадай, что это за новогодний символ?",
+                answer: "ёлка",
+                imageUrl: "https://github.com/stambrovskaia/advent/blob/782e0c0559baf18fef0373a382319d7352520195/2.png" // ЗАМЕНИТЕ ЭТУ ССЫЛКУ НА ВАШУ КАРТИНКУ
             },
             {
                 number: 2,
                 emoji: "⛄",
                 question: "Из снега слеплен, нос из морковки, не мёрзнет совсем. Кто это?",
-                answer: "снеговик"
+                answer: "снеговик",
+                imageUrl: "https://github.com/stambrovskaia/advent/blob/782e0c0559baf18fef0373a382319d7352520195/17395_300%20%D1%81%D0%BB%D0%BE%D0%B2_1.pdf" 
             },
             {
                 number: 3,
                 emoji: "🎁",
                 question: "В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?",
-                answer: "подарок"
+                answer: "подарок",
+                imageUrl: "https://github.com/stambrovskaia/advent/blob/782e0c0559baf18fef0373a382319d7352520195/-7446640366475083801.mp4" 
             },
             {
                 number: 4,
@@ -390,6 +403,7 @@
             const modalNumber = document.getElementById('modal-number');
             const modalEmoji = document.getElementById('modal-emoji');
             const riddleText = document.getElementById('riddle-text');
+            const riddleImage = document.getElementById('riddle-image');
             const answerSection = document.getElementById('answer-section');
             const resultSection = document.getElementById('result-section');
             const answerInput = document.getElementById('answer-input');
@@ -400,6 +414,15 @@
             modalEmoji.textContent = riddle.emoji;
             riddleText.textContent = riddle.question;
             answerInput.value = '';
+
+            // Показываем картинку, если она есть
+            if (riddle.imageUrl) {
+                riddleImage.src = riddle.imageUrl;
+                riddleImage.style.display = 'block';
+                riddleImage.alt = `Изображение для загадки ${riddle.number}`;
+            } else {
+                riddleImage.style.display = 'none';
+            }
 
             // Показываем/скрываем секции в зависимости от состояния
             if (gameState.completedLevels.includes(riddle.number)) {
