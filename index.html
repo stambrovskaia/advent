@@ -663,7 +663,7 @@ body {
 <div class="container">
     <div class="header">
         <h1>🎄АДВЕНТ-КАЛЕНДАРЬ</h1>
-        <p>РЕШАЙ НОВОЕ ЗАДАНИЕ КАЖДЫЙ ДЕНЬ</p>
+        <p>РАЗГАДЫВАЙ НОВЫЙ УРОВЕНЬ КАЖДЫЙ ДЕНЬ</p>
         <p>ПРОЙДЕНО: <span id="completed-count">0</span> ИЗ <span id="total-count">9</span> УРОВНЕЙ</p>
     </div>
 
@@ -747,13 +747,13 @@ const riddles = [
         type: 'image-multi',
         question: 'Художник зашифровал событие с помощью года, в котором оно произошло. Отгадай, что это за событие',
         items: [
-            { image: 'im7.1.png', answers: ['Гарри Поттер опубликован', 'гарри поттер']},
-            { image: 'im7.2.png', answers: ['Звездные войны вышли']},
-            { image: 'im7.3.png', answers: ['Опубликован маленький принц']},
-            { image: 'im7.4.png', answers: ['Открылся первый макдональдс']},
-            { image: 'im7.5.png', answers: ['Затонул Титаник']},
-            { image: 'im7.6.png', answers: ['Родился Сальвадор Дали']},
-            { image: 'im7.7.png', answers: ['Первая Олимпиада']}
+            { image: 'im7.1.png', answers: ['Гарри Поттер опубликован', 'гарри поттер', 'Вышла книга \"Гарри Поттер и философский камень\"']},
+            { image: 'im7.2.png', answers: ['Звездные войны вышли','Вышел фильм \"Звездные войны\"','Звездные войны']},
+            { image: 'im7.3.png', answers: ['Опубликована книга маленький принц', 'Маленький принц']},
+            { image: 'im7.4.png', answers: ['Открылся первый макдональдс', 'Макдональдс', 'Mcdonalds']},
+            { image: 'im7.5.png', answers: ['Затонул Титаник','утонул Титаник','Титаник']},
+            { image: 'im7.6.png', answers: ['Родился Сальвадор Дали','Сальвадор Дали']},
+            { image: 'im7.7.png', answers: ['Первая Олимпиада', 'Прошла Первая Олимпиада', 'состоялась Первая Олимпиада']}
         ]
 },
     {number:4,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answer:['снегопад'],imageUrl:'im4.1.png'},
@@ -1197,22 +1197,29 @@ function checkTextMultiAnswers(riddle) {
         const oldMessage = input.parentNode.querySelector('.input-result');
         if (oldMessage) oldMessage.remove();
 
-        if (userAnswer && correctAnswers.includes(userAnswer)) {
-            input.classList.add('correct');
-            input.classList.remove('incorrect');
-            input.readOnly = true;
-            riddle.__solved[index] = true;
-            showInputResult(input, '✅ Верно!', 'success');
-        } else if (userAnswer !== '') {
-            input.classList.add('incorrect');
-            input.classList.remove('correct');
-            allCorrect = false;
-            riddle.__solved[index] = false;
-            showInputResult(input, '❌ Неверно', 'error');
+        // Проверяем только если пользователь ввел ответ
+        if (userAnswer !== '') {
+            if (correctAnswers.includes(userAnswer)) {
+                input.classList.add('correct');
+                input.classList.remove('incorrect');
+                input.readOnly = true;
+                riddle.__solved[index] = true;
+                showInputResult(input, '✅ Верно!', 'success');
+            } else {
+                input.classList.add('incorrect');
+                input.classList.remove('correct');
+                allCorrect = false;
+                riddle.__solved[index] = false;
+                showInputResult(input, '❌ Неверно', 'error');
+            }
         }
     });
 
-    if (allCorrect && riddle.__solved.every(Boolean)) {
+    // Проверяем, ВСЕ ли ответы заполнены и правильны
+    const allAnswered = Array.from(inputs).every(input => normalizeText(input.value) !== '');
+    const allSolved = riddle.__solved.every(Boolean);
+
+    if (allAnswered && allSolved) {
         markSolved(riddle);
         showSuccess();
     }
@@ -1276,16 +1283,20 @@ function setupImageMulti(riddle) {
     document.querySelector('.modal-content')
         .insertBefore(slider, document.getElementById('match-section'));
 
+    // Добавляем контейнер для результата конкретного слайда
+    const resultContainer = document.createElement('div');
+    resultContainer.id = 'slide-result-container';
+    resultContainer.style.display = 'none';
+    resultContainer.style.marginTop = '8px';
+    resultContainer.style.padding = '8px';
+    resultContainer.style.borderRadius = '6px';
+    resultContainer.style.textAlign = 'center';
+    resultContainer.style.fontWeight = 'bold';
+
     const input = document.createElement('input');
     input.id = 'slider-answer';
     input.className = 'multi-input';
     input.placeholder = 'Ответ к этой картинке...';
-
-    input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            checkAnswer();
-        }
-    });
 
     const btnWrap = document.createElement('div');
     btnWrap.id = 'slider-input-wrap';
@@ -1296,11 +1307,12 @@ function setupImageMulti(riddle) {
 
     const checkBtn = document.createElement('button');
     checkBtn.className = 'submit-button';
-    checkBtn.textContent = 'Проверить';
-    checkBtn.onclick = checkAnswer;
+    checkBtn.textContent = 'Проверить этот ответ';
+    checkBtn.onclick = () => checkCurrentSlide();
 
     btnWrap.appendChild(input);
     btnWrap.appendChild(checkBtn);
+    btnWrap.appendChild(resultContainer);
 
     document.querySelector('.modal-content')
         .insertBefore(btnWrap, document.getElementById('match-section'));
@@ -1308,15 +1320,100 @@ function setupImageMulti(riddle) {
     window.sliderIndex = 0;
     window.sliderRiddle = riddle;
 
-    if (!riddle.__solved) {
-        riddle.__solved = Array(riddle.items.length).fill(false);
+    // Инициализируем состояние для каждого слайда
+    if (!riddle.__slideSolved) {
+        riddle.__slideSolved = Array(riddle.items.length).fill(false);
     }
-    if (!riddle.__answers) {
-        riddle.__answers = Array(riddle.items.length).fill('');
+    if (!riddle.__slideAnswers) {
+        riddle.__slideAnswers = Array(riddle.items.length).fill('');
     }
 
     updateSlider();
 }
+
+function checkCurrentSlide() {
+    const r = window.sliderRiddle;
+    if (!r) return;
+
+    const idx = window.sliderIndex;
+    const input = document.getElementById('slider-answer');
+    const resultContainer = document.getElementById('slide-result-container');
+
+    if (!input || !resultContainer) return;
+
+    const val = normalizeText(input.value);
+    if (!val) {
+        showSlideResult('Введите ответ', 'neutral');
+        return;
+    }
+
+    // Сохраняем ответ для текущего слайда
+    r.__slideAnswers[idx] = input.value;
+
+    // Проверяем ответ для конкретного слайда
+    const accepted = (r.items[idx].answers || []).map(a => normalizeText(a));
+
+    if (accepted.includes(val)) {
+        // Помечаем только текущий слайд как решенный
+        r.__slideSolved[idx] = true;
+
+        // Блокируем ввод для этого слайда
+        input.style.borderColor = '#33cc33';
+        input.style.background = 'rgba(76, 175, 80, 0.1)';
+        input.placeholder = '✅ Верно!';
+        input.readOnly = true;
+
+        // Показываем успех
+        showSlideResult('✅ Верно!', 'success');
+
+        // Скрываем кнопку проверки для этого слайда
+        const checkBtn = document.querySelector('#slider-input-wrap .submit-button');
+        if (checkBtn) {
+            checkBtn.style.display = 'none';
+        }
+
+        // Проверяем, все ли слайды решены
+        setTimeout(() => {
+            if (r.__slideSolved.every(Boolean)) {
+                markSolved(r);
+                showSuccess();
+            } else {
+                // Автоматически переходим к следующему НЕРЕШЕННОМУ слайду
+                moveToNextUnsolved();
+            }
+        }, 800);
+
+    } else {
+        input.style.borderColor = '#ff3333';
+        input.style.background = 'rgba(244, 67, 54, 0.1)';
+        showSlideResult('❌ Неверно. Попробуйте ещё.', 'error');
+    }
+}
+
+function moveToNextUnsolved() {
+    const r = window.sliderRiddle;
+    if (!r || !r.__slideSolved) return;
+
+    const currentIdx = window.sliderIndex;
+    let nextIdx = currentIdx;
+
+    // Ищем следующий нерешенный слайд
+    for (let i = 1; i <= r.items.length; i++) {
+        const checkIdx = (currentIdx + i) % r.items.length;
+        if (!r.__slideSolved[checkIdx]) {
+            nextIdx = checkIdx;
+            break;
+        }
+    }
+
+    // Переключаемся на найденный слайд
+    if (nextIdx !== currentIdx) {
+        window.sliderIndex = nextIdx;
+        updateSlider();
+    }
+}
+
+
 
 function updateSlider(){
     const r = window.sliderRiddle;
@@ -1329,18 +1426,74 @@ function updateSlider(){
     }
 
     const input = document.getElementById('slider-answer');
-    if(!input) return;
+    const checkBtn = document.querySelector('#slider-input-wrap .submit-button');
+    const resultContainer = document.getElementById('slide-result-container');
 
-    input.value = r.__answers[idx] || '';
+    if(!input || !checkBtn || !resultContainer) return;
 
-    if (r.__solved[idx]) {
+    // Очищаем предыдущий результат
+    resultContainer.style.display = 'none';
+    resultContainer.innerHTML = '';
+
+    // Устанавливаем значение из сохраненных ответов
+    input.value = r.__slideAnswers[idx] || '';
+
+    // Настраиваем состояние поля ввода
+    if (r.__slideSolved && r.__slideSolved[idx]) {
         input.style.borderColor = '#33cc33';
-        input.placeholder = 'Верно!';
+        input.style.background = 'rgba(76, 175, 80, 0.1)';
+        input.placeholder = '✅ Верно!';
         input.readOnly = true;
+        checkBtn.style.display = 'none';
     } else {
         input.style.borderColor = 'rgba(255,255,255,0.3)';
+        input.style.background = 'rgba(255,255,255,0.1)';
         input.placeholder = 'Ответ к этой картинке...';
         input.readOnly = false;
+        checkBtn.style.display = 'block';
+        checkBtn.textContent = 'Проверить этот ответ';
+    }
+
+    // Обновляем счетчик слайдов
+    const solvedCount = r.__slideSolved ? r.__slideSolved.filter(Boolean).length : 0;
+    const progressText = `(${solvedCount}/${r.items.length} решено)`;
+
+    // Добавляем прогресс в заголовок модального окна
+    const modalTitle = document.querySelector('.modal h2');
+    if (modalTitle) {
+        const baseText = modalTitle.textContent.replace(/\(\d+\/\d+ решено\)/, '');
+        modalTitle.textContent = baseText + ' ' + progressText;
+    }
+}
+
+function showSlideResult(message, type) {
+    const resultContainer = document.getElementById('slide-result-container');
+    if (!resultContainer) return;
+
+    resultContainer.style.display = 'block';
+    resultContainer.innerHTML = message;
+
+    if (type === 'success') {
+        resultContainer.style.background = 'rgba(76, 175, 80, 0.1)';
+        resultContainer.style.color = '#4caf50';
+        resultContainer.style.border = '1px solid #4caf50';
+    } else if (type === 'error') {
+        resultContainer.style.background = 'rgba(244, 67, 54, 0.1)';
+        resultContainer.style.color = '#f44336';
+        resultContainer.style.border = '1px solid #f44336';
+    } else {
+        resultContainer.style.background = 'rgba(255, 193, 7, 0.1)';
+        resultContainer.style.color = '#ffc107';
+        resultContainer.style.border = '1px solid #ffc107';
+    }
+
+    // Автоматически скрываем сообщение об ошибке через 2 секунды
+    if (type === 'error') {
+        setTimeout(() => {
+            if (resultContainer.innerHTML === message) {
+                resultContainer.style.display = 'none';
+            }
+        }, 2000);
     }
 }
 
@@ -1355,46 +1508,13 @@ function checkAnswer(){
     const r=window.currentRiddle;
     if (!r) return;
 
+    // Обработка image-multi перенаправляется в checkCurrentSlide
     if(r.type === 'image-multi'){
-        const idx = window.sliderIndex;
-        const input = document.getElementById('slider-answer');
-        if(!input) return;
-
-        const val = normalizeText(input.value);
-        if(!val) return;
-
-        r.__answers[idx] = input.value;
-        const accepted = (r.items[idx].answers || []).map(a => normalizeText(a));
-
-        if (accepted.includes(val)) {
-            r.__solved[idx] = true;
-            input.style.borderColor = '#33cc33';
-            input.style.background = 'rgba(76, 175, 80, 0.1)';
-            input.placeholder = '✅ Верно!';
-
-            showSlideResult('✅ Верно!', 'success');
-
-            setTimeout(() => {
-                if (r.__solved.every(Boolean)) {
-                    markSolved(r);
-                    showSuccess();
-                } else {
-                    changeSlide(1);
-                    setTimeout(() => {
-                        const nextInput = document.getElementById('slider-answer');
-                        if (nextInput) nextInput.focus();
-                    }, 100);
-                }
-            }, 1000);
-
-        } else {
-            input.style.borderColor = '#ff3333';
-            input.style.background = 'rgba(244, 67, 54, 0.1)';
-            showSlideResult('❌ Неверно. Попробуйте ещё.', 'error');
-        }
+        checkCurrentSlide();
         return;
     }
 
+    // Для всех остальных типов загадок
     const input = document.getElementById('answer-input');
     if (!input) return;
 
@@ -1412,39 +1532,7 @@ function checkAnswer(){
     }
 }
 
-function showSlideResult(message, type) {
-    const oldResult = document.getElementById('slide-result');
-    if (oldResult) oldResult.remove();
 
-    const resultDiv = document.createElement('div');
-    resultDiv.id = 'slide-result';
-    resultDiv.className = 'slide-result';
-
-    if (type === 'success') {
-        resultDiv.style.background = 'rgba(76, 175, 80, 0.2)';
-        resultDiv.style.color = '#4caf50';
-        resultDiv.style.border = '1px solid #4caf50';
-    } else {
-        resultDiv.style.background = 'rgba(244, 67, 54, 0.2)';
-        resultDiv.style.color = '#f44336';
-        resultDiv.style.border = '1px solid #f44336';
-    }
-
-    resultDiv.textContent = message;
-
-    const inputWrap = document.getElementById('slider-input-wrap');
-    if (inputWrap) {
-        inputWrap.appendChild(resultDiv);
-
-        if (type === 'error') {
-            setTimeout(() => {
-                if (resultDiv.parentNode) {
-                    resultDiv.remove();
-                }
-            }, 2000);
-        }
-    }
-}
 
 function showSuccess(){
     const m=document.getElementById('result-message');
