@@ -657,6 +657,28 @@ body {
     text-align: center;
     font-weight: 600;
 }
+
+    .reset-button {
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reset-button:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    transform: translateY(-1px);
+}
 </style>
 </head>
 <body>
@@ -666,7 +688,6 @@ body {
         <p>РАЗГАДЫВАЙ НОВЫЙ УРОВЕНЬ КАЖДЫЙ ДЕНЬ</p>
         <p>ПРОЙДЕНО: <span id="completed-count">0</span> ИЗ <span id="total-count">9</span> УРОВНЕЙ</p>
     </div>
-
     <div class="calendar" id="calendar"></div>
 </div>
 
@@ -723,11 +744,11 @@ const riddles = [
             { image: 'im1.5.png', answers: ['человек-амфибия'] },
             { image: 'im1.4.png', answers: ['полосатый рейс'] },
             { image: 'im1.1.png', answers: ['12 стульев','двенадцать стульев'] },
-            { image: 'im1.2.png', answers: ['3 мушкетера', 'три мушкетера', 'Д\'Артаньян и три мушкетера', 'Д\'Артаньян и 3 мушкетера', 'ДАртаньян и 3 мушкетера'] },
+            { image: 'im1.2.png', answers: ['3 мушкетера', 'три мушкетера', 'Д\'Артаньян и три мушкетера', 'Д\'Артаньян и 3 мушкетера', 'ДАртаньян и 3 мушкетера', 'ДАртаньян и три мушкетера'] },
             { image: 'im1.3.png', answers: ['ежик в тумане','ёжик в тумане'] }
         ]
     },
-    {number:2,imageIcon:'image1.png',type:'wordsearch',question:'Найди все слова. Лишних букв не должно оставаться.',
+    {number:2,imageIcon:'image1.png',type:'wordsearch',question:'Слова - по вертикали, горизонтали, могут поворачивать, но по диагонали их не будет. Лишних букв не останется',
         grid:['М','Е','Р','П','Ы','Е','К','О','Ж','Д',
              'И','У','М','Т','С','Р','А','К','Т','Е',
              'Т','Р','А','К','И','Л','Н','А','У','Л',
@@ -747,7 +768,7 @@ const riddles = [
         type: 'image-multi',
         question: 'Художник зашифровал событие с помощью года, в котором оно произошло. Отгадай, что это за событие',
         items: [
-            { image: 'im7.1.png', answers: ['Гарри Поттер опубликован', 'гарри поттер', 'Вышла книга \"Гарри Поттер и философский камень\"']},
+            { image: 'im7.1.png', answers: ['Гарри Поттер опубликован', 'гарри поттер', 'гарри поттер и философский камень','Вышла книга \"Гарри Поттер и философский камень\"']},
             { image: 'im7.2.png', answers: ['Звездные войны вышли','Вышел фильм \"Звездные войны\"','Звездные войны']},
             { image: 'im7.3.png', answers: ['Опубликована книга маленький принц', 'Маленький принц']},
             { image: 'im7.4.png', answers: ['Открылся первый макдональдс', 'Макдональдс', 'Mcdonalds']},
@@ -932,7 +953,76 @@ const riddles = [
     {number:31,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай ребус',answer:['Открываем календарь, начинается январь','Открываем календарь начинается январь'],imageUrl:'im31.1.png'},
 ];
 let gameState = {currentLevel:1,completedLevels:[]};
+
+
 const STORAGE_KEY = 'adventGameState_v4';
+const RIDDLE_STATES_KEY = 'riddleStates_v1';
+
+function saveRiddleStates() {
+    const riddleStates = {};
+
+    riddles.forEach(r => {
+        riddleStates[r.number] = {
+            __solved: r.__solved || null,
+            __answers: r.__answers || null,
+            __slideSolved: r.__slideSolved || null,
+            __slideAnswers: r.__slideAnswers || null
+        };
+    });
+
+    localStorage.setItem(RIDDLE_STATES_KEY, JSON.stringify(riddleStates));
+    console.log("Сохранены состояния загадок");
+}
+
+// Проверка существования всех необходимых элементов
+window.addEventListener('DOMContentLoaded', function() {
+    const requiredIds = [
+        'text-multi-section', 'match-section', 'grid-section',
+        'groups-section', 'answer-section', 'result-section',
+        'riddle-image', 'riddle-video', 'modal-number', 'riddle-text'
+    ];
+
+    requiredIds.forEach(id => {
+        if (!document.getElementById(id)) {
+            console.error('Элемент с id "' + id + '" не найден в DOM');
+        }
+    });
+});
+
+function loadRiddleStates() {
+    const saved = localStorage.getItem(RIDDLE_STATES_KEY);
+    if (!saved) return;
+
+    try {
+        const riddleStates = JSON.parse(saved);
+
+        riddles.forEach(r => {
+            const state = riddleStates[r.number];
+            if (state) {
+                r.__solved = state.__solved || null;
+                r.__answers = state.__answers || null;
+                r.__slideSolved = state.__slideSolved || null;
+                r.__slideAnswers = state.__slideAnswers || null;
+
+                // Автоматически помечаем загадку как решенную, если все элементы решены
+                if (r.type === 'image-multi' && r.__slideSolved && r.__slideSolved.every(Boolean)) {
+                    if (!gameState.completedLevels.includes(r.number)) {
+                        gameState.completedLevels.push(r.number);
+                    }
+                }
+                if (r.type === 'text-multi' && r.__solved && r.__solved.every(Boolean)) {
+                    if (!gameState.completedLevels.includes(r.number)) {
+                        gameState.completedLevels.push(r.number);
+                    }
+                }
+            }
+        });
+
+        saveGameState(); // Сохраняем обновленное состояние
+    } catch (e) {
+        console.error("Ошибка загрузки состояний загадок:", e);
+    }
+}
 
 function getCurrentMoscowDate() {
     const now = new Date();
@@ -979,6 +1069,10 @@ function loadGameState(){
             gameState = {currentLevel:1,completedLevels:[]};
         }
     }
+
+    // Загружаем состояния загадок
+    loadRiddleStates();
+
     updateAvailableLevels();
     updateProgress();
 }
@@ -1003,12 +1097,34 @@ function createWindows(){
         num.textContent=r.number;
         w.appendChild(num);
 
-        if(gameState.completedLevels.includes(r.number)) {
+        // Проверяем, решена ли загадка (включая image-multi и text-multi)
+        let isCompleted = gameState.completedLevels.includes(r.number);
+
+        // Для image-multi проверяем состояние слайдов
+        if (r.type === 'image-multi' && r.__slideSolved) {
+            isCompleted = r.__slideSolved.every(Boolean);
+        }
+        // Для text-multi проверяем состояние ответов
+        if (r.type === 'text-multi' && r.__solved) {
+            isCompleted = r.__solved.every(Boolean);
+        }
+
+        // Устанавливаем классы стилей
+        if(isCompleted) {
             w.classList.add('completed');
         } else if(r.number <= gameState.currentLevel) {
             w.classList.add('available');
         } else {
             w.classList.add('locked');
+        }
+
+        // Добавляем обработчик клика для всех доступных и решенных окон
+        if(r.number <= gameState.currentLevel || isCompleted){
+            w.addEventListener('click',()=>openRiddle(r));
+            w.style.cursor = 'pointer';
+        } else {
+            w.title = `Эта загадка откроется ${r.number} декабря`;
+            w.style.cursor = 'not-allowed';
         }
 
         const img = document.createElement('img');
@@ -1019,19 +1135,29 @@ function createWindows(){
         img.style.pointerEvents = "none";
         w.appendChild(img);
 
-        if(r.number <= gameState.currentLevel){
-            w.addEventListener('click',()=>openRiddle(r));
-        } else {
-            w.title = `Эта загадка откроется ${r.number} декабря`;
-        }
-
         calendar.appendChild(w);
     });
 }
 
 function openRiddle(riddle){
     window.currentRiddle = riddle;
+    window.sliderRiddle = null;  // ← ВАЖНО: сбрасываем слайдер
+    window.sliderIndex = 0;      // ← ВАЖНО: сбрасываем индекс
 
+    // Безопасное скрытие всех секций
+    const sectionsToHide = [
+        'riddle-image', 'riddle-video', 'match-section', 'grid-section',
+        'groups-section', 'answer-section', 'text-multi-section', 'result-section'
+    ];
+
+    sectionsToHide.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
+
+    // Удаляем динамически созданные элементы
     const oldSlider = document.getElementById('riddle-slider');
     if (oldSlider) oldSlider.remove();
     const oldWrap = document.getElementById('slider-input-wrap');
@@ -1042,20 +1168,16 @@ function openRiddle(riddle){
     window.sliderRiddle = null;
     window.sliderIndex = 0;
 
-    const modal=document.getElementById('modal');
-    document.getElementById('modal-number').textContent = riddle.number;
-    document.getElementById('riddle-text').textContent = riddle.question;
-    document.getElementById('result-section').style.display='none';
+    const modal = document.getElementById('modal');
+    const modalNumber = document.getElementById('modal-number');
+    const riddleText = document.getElementById('riddle-text');
 
-    document.getElementById('riddle-image').style.display='none';
-    document.getElementById('riddle-video').style.display='none';
-    document.getElementById('match-section').style.display='none';
-    document.getElementById('grid-section').style.display='none';
-    document.getElementById('groups-section').style.display='none';
-    document.getElementById('answer-section').style.display='none';
-    document.getElementById('text-multi-section').style.display='none';
+    if (modalNumber) modalNumber.textContent = riddle.number;
+    if (riddleText) riddleText.textContent = riddle.question;
 
-    document.getElementById('answer-input').value = '';
+    const answerInput = document.getElementById('answer-input');
+    if (answerInput) answerInput.value = '';
+    updateModalTitle(riddle);
 
     if (riddle.type === 'image-multi') {
         setupImageMulti(riddle);
@@ -1063,25 +1185,30 @@ function openRiddle(riddle){
         setupTextMulti(riddle);
     } else if(riddle.type === 'wordsearch'){
         setupWordsearch(riddle);
-        document.getElementById('grid-section').style.display='block';
+        const gridSection = document.getElementById('grid-section');
+        if (gridSection) gridSection.style.display = 'block';
     } else if(riddle.type === 'match'){
         setupMatch(riddle);
-        document.getElementById('match-section').style.display='block';
+        const matchSection = document.getElementById('match-section');
+        if (matchSection) matchSection.style.display = 'block';
     } else if(riddle.type === 'groups'){
         setupGroups(riddle);
-        document.getElementById('groups-section').style.display='block';
+        const groupsSection = document.getElementById('groups-section');
+        if (groupsSection) groupsSection.style.display = 'block';
     } else if(riddle.type === 'riddle-image'){
         setupRiddleImage(riddle);
-        document.getElementById('answer-section').style.display='block';
+        const answerSection = document.getElementById('answer-section');
+        if (answerSection) answerSection.style.display = 'block';
     } else {
-        document.getElementById('answer-section').style.display='block';
+        const answerSection = document.getElementById('answer-section');
+        if (answerSection) answerSection.style.display = 'block';
     }
 
     if(gameState.completedLevels.includes(riddle.number)){
         showAlreadySolved(riddle);
     }
 
-    modal.style.display='flex';
+    if (modal) modal.style.display = 'flex';
 }
 
 function setupRiddleImage(riddle) {
@@ -1150,6 +1277,11 @@ function setupTextMulti(riddle) {
                     this.classList.remove('incorrect');
                     this.readOnly = true;
                     riddle.__solved[index] = true;
+                    riddle.__answers[index] = this.value;
+
+                    // Сохраняем состояние
+                    saveRiddleStates();
+
                     showInputResult(this, '✅ Верно!', 'success');
 
                     const nextInput = document.querySelector(`.multi-text-input[data-index="${index + 1}"]`);
@@ -1215,6 +1347,9 @@ function checkTextMultiAnswers(riddle) {
         }
     });
 
+    // Сохраняем состояние
+    saveRiddleStates();
+
     // Проверяем, ВСЕ ли ответы заполнены и правильны
     const allAnswered = Array.from(inputs).every(input => normalizeText(input.value) !== '');
     const allSolved = riddle.__solved.every(Boolean);
@@ -1257,6 +1392,8 @@ function showInputResult(inputElement, message, type) {
 }
 
 function setupImageMulti(riddle) {
+    window.sliderRiddle = riddle;
+    window.sliderIndex = 0;
     const slider = document.createElement('div');
     slider.id = 'riddle-slider';
     slider.className = 'slider-container';
@@ -1297,6 +1434,13 @@ function setupImageMulti(riddle) {
     input.id = 'slider-answer';
     input.className = 'multi-input';
     input.placeholder = 'Ответ к этой картинке...';
+
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Предотвращаем стандартное поведение
+            checkCurrentSlide();
+        }
+    });
 
     const btnWrap = document.createElement('div');
     btnWrap.id = 'slider-input-wrap';
@@ -1372,6 +1516,9 @@ function checkCurrentSlide() {
             checkBtn.style.display = 'none';
         }
 
+        // Сохраняем состояние
+        saveRiddleStates();
+        updateModalTitle(r);
         // Проверяем, все ли слайды решены
         setTimeout(() => {
             if (r.__slideSolved.every(Boolean)) {
@@ -1417,9 +1564,9 @@ function moveToNextUnsolved() {
 
 function updateSlider(){
     const r = window.sliderRiddle;
-    if(!r) return;
-
     const idx = window.sliderIndex;
+
+    if(!r) return;
     const img = document.getElementById('slider-main-image');
     if (img && r.items[idx]) {
         img.src = r.items[idx].image;
@@ -1454,16 +1601,32 @@ function updateSlider(){
         checkBtn.textContent = 'Проверить этот ответ';
     }
 
-    // Обновляем счетчик слайдов
-    const solvedCount = r.__slideSolved ? r.__slideSolved.filter(Boolean).length : 0;
-    const progressText = `(${solvedCount}/${r.items.length} решено)`;
+    updateModalTitle(r);
 
-    // Добавляем прогресс в заголовок модального окна
-    const modalTitle = document.querySelector('.modal h2');
-    if (modalTitle) {
-        const baseText = modalTitle.textContent.replace(/\(\d+\/\d+ решено\)/, '');
-        modalTitle.textContent = baseText + ' ' + progressText;
     }
+
+
+function updateModalTitle(r) {
+    const modalTitle = document.querySelector('.modal h2');
+    if (!modalTitle) return;
+
+    let title = `Загадка ${r.number}`;
+
+    // Показываем прогресс только для image-multi и text-multi
+    if (r.type === 'image-multi') {
+        if (r.__slideSolved && r.items && r.items.length > 0) {
+            const solvedCount = r.__slideSolved.filter(Boolean).length;
+            title += ` - ${solvedCount}/${r.items.length}${solvedCount === r.items.length ? '✅' : ''}`;
+        }
+    }
+    else if (r.type === 'text-multi') {
+        if (r.__solved && r.items && r.items.length > 0) {
+            const solvedCount = r.__solved.filter(Boolean).length;
+            title += ` - ${solvedCount}/${r.items.length}${solvedCount === r.items.length ? '✅' : ''}`;
+        }
+    }
+
+    modalTitle.textContent = title;
 }
 
 function showSlideResult(message, type) {
@@ -1564,6 +1727,7 @@ function markSolved(r){
     if(!gameState.completedLevels.includes(r.number)){
         gameState.completedLevels.push(r.number);
         saveGameState();
+        saveRiddleStates(); // Сохраняем состояния
         createWindows();
     }
 }
@@ -1794,6 +1958,38 @@ function setupGroups(r){
     });
 }
 
+function resetProgress() {
+    if (confirm('Вы уверены, что хотите сбросить весь прогресс? Это действие нельзя отменить.')) {
+        // Сброс состояния игры
+        gameState = {
+            currentLevel: 1,
+            completedLevels: []
+        };
+
+        // Сброс состояний загадок
+        riddles.forEach(r => {
+            r.__solved = null;
+            r.__answers = null;
+            r.__slideSolved = null;
+            r.__slideAnswers = null;
+        });
+
+        // Очистка localStorage
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(RIDDLE_STATES_KEY);
+
+        // Обновление интерфейса
+        updateAvailableLevels();
+        updateProgress();
+        createWindows();
+
+        // Закрытие модального окна, если оно открыто
+        closeModal();
+
+        alert('Прогресс успешно сброшен!');
+    }
+}
+
 function checkGroups(){
     const r=window.currentRiddle;
     if(group_selected.length!==4){
@@ -1844,9 +2040,13 @@ function init(){
     const sliderAnswer = document.getElementById('slider-answer');
     if (sliderAnswer) {
         sliderAnswer.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkAnswer();
+            if (e.key === 'Enter') checkCurrentSlide();
         });
     }
+    const resetButton = document.getElementById('reset-button');
+    if (resetButton) {
+        resetButton.addEventListener('click', resetProgress);
+        }
 }
 
 document.addEventListener("DOMContentLoaded", init);
