@@ -4,6 +4,21 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎄Адвент-Календарь</title>
+
+    <!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105757583', 'ym');
+
+    ym(105757583, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105757583" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
 <style>
 /* Modern CSS Reset and Base Styles */
 * {
@@ -769,12 +784,12 @@ const riddles = [
         question: 'Художник зашифровал событие с помощью года, в котором оно произошло. Отгадай, что это за событие',
         items: [
             { image: 'im7.1.png', answers: ['Гарри Поттер опубликован', 'гарри поттер', 'гарри поттер и философский камень','Вышла книга \"Гарри Поттер и философский камень\"']},
-            { image: 'im7.2.png', answers: ['Звездные войны вышли','Вышел фильм \"Звездные войны\"','Звездные войны','звездные войны\: Новая надежда','вышел фильм звездные войны\: Новая надежда']},
+            { image: 'im7.2.png', answers: ['Звездные войны вышли','Вышел фильм \"Звездные войны\"','Звездные войны']},
             { image: 'im7.3.png', answers: ['Опубликована книга маленький принц', 'Маленький принц']},
-            { image: 'im7.4.png', answers: ['Открылся первый макдональдс', 'Макдональдс', 'Mcdonalds', 'Mcdonald\'s', 'первый Mcdonald\'s', 'первый макдоналдс']},
+            { image: 'im7.4.png', answers: ['Открылся первый макдональдс', 'Макдональдс', 'Mcdonalds']},
             { image: 'im7.5.png', answers: ['Затонул Титаник','утонул Титаник','Титаник']},
-            { image: 'im7.6.png', answers: ['Родился Сальвадор Дали','Сальвадор Дали', 'год рождения Сальвадора Дали', 'год рождения Дали']},
-            { image: 'im7.7.png', answers: ['Первая Олимпиада', 'Прошла Первая Олимпиада', 'состоялась Первая Олимпиада', 'Олимпийские игры', 'первые олимпийские игры', 'Олимпиада']}
+            { image: 'im7.6.png', answers: ['Родился Сальвадор Дали','Сальвадор Дали']},
+            { image: 'im7.7.png', answers: ['Первая Олимпиада', 'Прошла Первая Олимпиада', 'состоялась Первая Олимпиада']}
         ]
 },
     {number:4,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answer:['снегопад'],imageUrl:'im4.1.png'},
@@ -957,7 +972,7 @@ let gameState = {currentLevel:1,completedLevels:[]};
 
 const STORAGE_KEY = 'adventGameState_v4';
 const RIDDLE_STATES_KEY = 'riddleStates_v1';
-
+const YM_COUNTER_ID = 105757583;
 function saveRiddleStates() {
     const riddleStates = {};
 
@@ -972,6 +987,41 @@ function saveRiddleStates() {
 
     localStorage.setItem(RIDDLE_STATES_KEY, JSON.stringify(riddleStates));
     console.log("Сохранены состояния загадок");
+}
+
+// Функция отправки события в Яндекс.Метрику
+function sendYMEvent(eventName, eventParams = {}) {
+    if (typeof ym !== 'undefined') {
+        try {
+            ym(YM_COUNTER_ID, 'reachGoal', eventName, eventParams);
+            console.log(`[YM] Событие отправлено: ${eventName}`, eventParams);
+        } catch (error) {
+            console.error('[YM] Ошибка отправки события:', error);
+        }
+    } else {
+        console.warn('[YM] Яндекс.Метрика не загружена');
+    }
+}
+
+
+// Функция отправки параметров визита
+function sendYMUserParams() {
+    if (typeof ym !== 'undefined') {
+        try {
+            const userId = localStorage.getItem('user_id') || 'anonymous';
+            const completedCount = gameState.completedLevels.length;
+
+            ym(YM_COUNTER_ID, 'params', {
+                'User ID': userId,
+                'Completed Riddles': completedCount,
+                'Current Level': gameState.currentLevel,
+                'Screen Resolution': `${screen.width}x${screen.height}`,
+                'User Agent Short': navigator.userAgent.substring(0, 100)
+            });
+        } catch (error) {
+            console.error('[YM] Ошибка отправки параметров:', error);
+        }
+    }
 }
 
 // Проверка существования всех необходимых элементов
@@ -1119,13 +1169,29 @@ function createWindows(){
         }
 
         // Добавляем обработчик клика для всех доступных и решенных окон
-        if(r.number <= gameState.currentLevel || isCompleted){
-            w.addEventListener('click',()=>openRiddle(r));
-            w.style.cursor = 'pointer';
-        } else {
-            w.title = `Эта загадка откроется ${r.number} декабря`;
-            w.style.cursor = 'not-allowed';
-        }
+                if(r.number <= gameState.currentLevel || isCompleted){
+        w.addEventListener('click',()=>{
+            // Отправляем событие клика по окну ПЕРЕД открытием
+            sendYMEvent('calendar_click', {
+                'window_number': r.number,
+                'is_completed': isCompleted,
+                'is_available': r.number <= gameState.currentLevel
+            });
+            openRiddle(r);
+        });
+        w.style.cursor = 'pointer';
+    } else {
+        w.title = `Эта загадка откроется ${r.number} декабря`;
+        w.style.cursor = 'not-allowed';
+
+        // Отслеживаем клики по заблокированным окнам
+        w.addEventListener('click', () => {
+            sendYMEvent('calendar_locked_click', {
+                'window_number': r.number,
+                'available_date': `${r.number} декабря`
+            });
+        });
+    }
 
         const img = document.createElement('img');
         img.src = r.imageIcon;
@@ -1209,6 +1275,11 @@ function openRiddle(riddle){
     }
 
     if (modal) modal.style.display = 'flex';
+    sendYMEvent('riddle_opened', {
+        'riddle_number': riddle.number,
+        'riddle_type': riddle.type,
+        'is_completed': gameState.completedLevels.includes(riddle.number)
+    });
 }
 
 function setupRiddleImage(riddle) {
@@ -1509,7 +1580,13 @@ function checkCurrentSlide() {
 
         // Показываем успех
         showSlideResult('✅ Верно!', 'success');
-
+        sendYMEvent('slide_solved', {
+            'riddle_number': r.number,
+            'slide_index': idx + 1,
+            'total_slides': r.items.length,
+            'answer_length': val.length,
+            'is_correct': true
+        });
         // Скрываем кнопку проверки для этого слайда
         const checkBtn = document.querySelector('#slider-input-wrap .submit-button');
         if (checkBtn) {
@@ -1534,6 +1611,12 @@ function checkCurrentSlide() {
         input.style.borderColor = '#ff3333';
         input.style.background = 'rgba(244, 67, 54, 0.1)';
         showSlideResult('❌ Неверно. Попробуйте ещё.', 'error');
+        sendYMEvent('slide_failed', {
+            'riddle_number': r.number,
+            'slide_index': idx + 1,
+            'answer_length': val.length,
+            'is_correct': false
+        });
     }
 }
 
@@ -1690,8 +1773,27 @@ function checkAnswer(){
     if(normalizedAccepted.includes(val)){
         markSolved(r);
         showSuccess();
+        sendYMEvent('answer_correct', {
+            'riddle_number': r.number,
+            'riddle_type': r.type,
+            'answer_length': val.length,
+            'attempts': r.__attempts ? r.__attempts + 1 : 1
+        });
     } else {
+        // Отправляем событие неудачной попытки
+        sendYMEvent('answer_incorrect', {
+            'riddle_number': r.number,
+            'riddle_type': r.type,
+            'answer_length': val.length,
+            'attempts': r.__attempts ? r.__attempts + 1 : 1
+        });
+
+        // Считаем попытки
+        if (!r.__attempts) r.__attempts = 0;
+        r.__attempts++;
+
         showError();
+
     }
 }
 
@@ -1729,6 +1831,27 @@ function markSolved(r){
         saveGameState();
         saveRiddleStates(); // Сохраняем состояния
         createWindows();
+        // Отправляем событие в Яндекс.Метрику
+        sendYMEvent('riddle_solved', {
+            'riddle_number': r.number,
+            'riddle_type': r.type,
+            'total_solved': gameState.completedLevels.length,
+            'completion_percentage': Math.round((gameState.completedLevels.length / riddles.length) * 100)
+        });
+
+        // Для image-multi и text-multi отправляем дополнительную информацию
+        if (r.type === 'image-multi' && r.__slideSolved) {
+            const solvedCount = r.__slideSolved.filter(Boolean).length;
+            sendYMEvent('multi_riddle_progress', {
+                'riddle_number': r.number,
+                'solved_slides': solvedCount,
+                'total_slides': r.items.length,
+                'progress': Math.round((solvedCount / r.items.length) * 100)
+            });
+        }
+
+        // Отправляем обновленные параметры пользователя
+        sendYMUserParams();
     }
 }
 
@@ -2024,29 +2147,73 @@ function checkGroups(){
     }
 }
 
+function loadYandexMetrica() {
+    const script = document.createElement('script');
+    script.src = 'https://mc.yandex.ru/metrika/tag.js';
+    script.async = true;
+    script.onload = function() {
+        console.log('YM загружен динамически');
+        ym(105757583, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+        });
+    };
+    document.head.appendChild(script);
+}
+
+
 function init(){
+    console.log('Страница загружена');
+    console.log('YM доступен:', typeof ym !== 'undefined');
+    console.log('YM счетчик:', YM_COUNTER_ID);
+
+    if (typeof ym === 'undefined') {
+        console.error('Яндекс.Метрика не загрузилась!');
+        loadYandexMetrica();
+    }
+
     loadGameState();
     createWindows();
 
-    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-close').addEventListener('click', function() {
+        sendYMEvent('modal_closed', {
+            'current_riddle': window.currentRiddle ? window.currentRiddle.number : null
+        });
+        closeModal();
+    });
+
     document.getElementById('modal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
+        if (e.target === this) {
+            sendYMEvent('modal_closed', {
+                'current_riddle': window.currentRiddle ? window.currentRiddle.number : null
+            });
+            closeModal();
+        }
     });
 
     document.getElementById('answer-input').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') checkAnswer();
     });
 
-    const sliderAnswer = document.getElementById('slider-answer');
-    if (sliderAnswer) {
-        sliderAnswer.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkCurrentSlide();
-        });
-    }
+    // Кнопка сброса
     const resetButton = document.getElementById('reset-button');
     if (resetButton) {
         resetButton.addEventListener('click', resetProgress);
-        }
+    }
+
+    setTimeout(() => {
+        sendYMEvent('session_start', {
+            'completed_riddles': gameState.completedLevels.length,
+            'available_riddles': gameState.currentLevel,
+            'total_riddles': riddles.length,
+            'is_first_visit': !localStorage.getItem('has_visited')
+        });
+
+        sendYMUserParams();
+        localStorage.setItem('has_visited', 'true');
+    }, 1000);
 }
 
 document.addEventListener("DOMContentLoaded", init);
