@@ -694,6 +694,269 @@ body {
     color: #ef4444;
     transform: translateY(-1px);
 }
+
+/* Audio player styles */
+.audio-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.audio-player {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.audio-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.audio-play-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.audio-play-btn:hover {
+    background: var(--accent-secondary);
+    transform: scale(1.05);
+}
+
+.audio-play-btn.playing {
+    background: var(--success);
+}
+
+.audio-progress {
+    flex: 1;
+    height: 4px;
+    background: var(--border-light);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.audio-progress-bar {
+    height: 100%;
+    background: var(--accent-primary);
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.audio-time {
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    min-width: 100px;
+    text-align: center;
+}
+
+.audio-title {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.audio-current {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Match game improvements */
+.match-container {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.match-list, .match-slots {
+    flex: 1;
+    min-width: 300px;
+}
+
+.match-item {
+    padding: 16px;
+    margin: 8px 0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    cursor: grab;
+    border: 1.5px solid var(--border-light);
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+.match-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--accent-primary);
+}
+
+.match-item:active {
+    cursor: grabbing;
+    transform: translateY(0);
+}
+
+.match-slot {
+    padding: 16px;
+    margin: 8px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--border-medium);
+    min-height: 80px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+}
+
+.match-slot.drag-over {
+    background: rgba(26, 26, 26, 0.05);
+    border-color: var(--accent-primary);
+    border-style: solid;
+}
+
+.match-slot.has-item {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: var(--success);
+    border-style: solid;
+}
+
+.match-slot-content {
+    background: var(--bg-primary);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    margin-top: 8px;
+    border: 1px solid var(--border-light);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.match-slot-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.match-slot .original-content {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+    .match-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .match-list, .match-slots {
+        min-width: 100%;
+        width: 100%;
+    }
+    
+    .match-item {
+        padding: 14px;
+        font-size: 0.9rem;
+        min-height: 55px;
+    }
+    
+    .match-slot {
+        padding: 14px;
+        min-height: 75px;
+    }
+    
+    .match-slot-content {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .match-item {
+        padding: 12px;
+        font-size: 0.85rem;
+        min-height: 50px;
+    }
+    
+    .match-slot {
+        padding: 12px;
+        min-height: 70px;
+        font-size: 0.85rem;
+    }
+    
+    .match-slot-label {
+        font-size: 0.8rem;
+    }
+}
+
+/* Dragging feedback */
+.match-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+}
+
+/* Match result indicators */
+.match-correct .match-slot-content {
+    border-left: 4px solid var(--success);
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.match-incorrect .match-slot-content {
+    border-left: 4px solid var(--error);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* Instructions for mobile */
+.match-instructions {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+    padding: 8px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.match-instructions span {
+    display: inline-block;
+    margin: 0 4px;
+    padding: 2px 6px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+} 
+
 </style>
 </head>
 <body>
@@ -998,19 +1261,94 @@ const riddles = [
         ],
         words:['год','новый','фужер','бенгальский','гирлянда','праздник','икра','фейерверк','полночь','хлопушка','мороз','подарок','мандарин','предвкушение']
     },
-    {number:23,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
-    {number:24,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
-    {number:25,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
-    {number:26,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
-    {number:27,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
-    {number:28,imageIcon:'image1.png',type:'match',question:'Соедини традицию со страной, где её соблюдают.',pairs:[
-        {fact:'Испания',country:'В полночь, когда часы начинают отбивать 12 ударов до наступления нового года, ОНИ стараются съесть по одной виноградине на удар. С каждой виноградиной они загадывают желания на все будущие 12 месяцев по очереди.'},
-        {fact:'Италия',country:'В стране существует традиция на Новый год выбрасывать старые вещи. Это символизирует отречение от прошлого и всего, что ассоциируется с ушедшим годом.'},
-        {fact:'Эквадор',country:'Жители этой страны делают чучела из старой одежды или папье-маше. В полночь эти чучела сжигают. Ритуал символизирует очищение от неприятностей и неудач, которые случились в прошлом году, и помогает начать новый год с чистого листа'},
-        {fact:'Вьетнам',country:'Они считают, что если за новогодним столом сидит человек старше семидесяти лет, его мудрость распространится на всех присутствующих.'}
+    {number:23,imageIcon:'image1.png',type:'groups',question:'Объедини 16 слов в группы по 4 по определенной логике. Лишних слов не должно оставаться.',items:[
+        'призма','книга','лжец','силовое',
+        'площадь','зрение','армия','дорожка',
+        'ночь','битва','ахиллес','чудеса',
+        'черепаха','соната','рассел','шапочка'],
+    groups:[
+        ['призма','соната','дорожка','ночь'],
+        ['книга','армия','шапочка','площадь'],
+        ['черепаха','ахиллес','рассел','лжец'],
+        ['силовое','зрение','чудеса','битва']
     ]},
+    {
+    number: 24,
+    imageIcon: 'image1.png',
+    type: 'text-multi',
+    question: 'Сегодня вопросы в стиле "Что? Где? Когда?"',
+    items: [
+        { question: 'Жители Вологодской области назначили ЕГО днем рождения день 17 ноября, когда обычно уже выпадает первый снег. Назовите ЕГО.', answers: ['Дед мороз']},
+        { question: 'В Японии ОНИ обычно состоят из двух частей и сидят. ЕГО подобие периодически создают в Аризоне из растения перекати-поле. Назовите ЕГО.', answers: ['снеговик']},
+        { question: 'В Чехии сопровождающие — ангелочек в белоснежных одеждах и лохматый чертенок\; во Франции — Шаланд, бородатый старик в меховой шляпе и теплом дорожном плаще\; в Италии — старушка Бефана. А кто в России?', answers: ['снегурочка','Снегурочка']}
+        ]
+    },
+    {
+    number: 25, // или следующий номер
+    imageIcon: 'image1.png',
+    type: 'multi-audio',
+    question: 'Отгадай песни по перепевкам нейросети. Подсказка: изначально не все песни на русском языке. В ответ впишите название песни',
+    items: [
+        {
+            audio: 'audio25.1.mp3',
+            answers: ['новогодние игрушки']
+        },
+        {
+            audio: 'audio25.2.mp3',
+            answers: ['let it snow', 'Let It Snow! Let It Snow! Let It Snow!']
+        },
+        {
+            audio: 'audio25.3.mp3',
+            answers: ['all i want for christmas is you']
+        }
+    ]
+}, 
+    {number:26,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
+    {
+        number: 27,
+        imageIcon:'image1.png',
+        type: 'image-multi',
+        question: 'Отгадай фильм по одному кадру',
+        items: [
+            { image: 'im27.1.png', answers: ['один дома два','один дома 2']},
+            { image: 'im27.2.png', answers: ['карнавальная ночь']},
+            { image: 'im27.3.png', answers: ['крепкий орешек']},
+            { image: 'im27.4.png', answers: ['дневник бриджит джонс','дневник бриджит джонс два','дневник бриджит джонс 2']},
+            { image: 'im27.5.png', answers: ['иван васильевич меняет профессию']},
+            { image: 'im27.6.png', answers: ['елки','ёлки']}
+        ]
+    },
+    {
+    number: 28,
+    imageIcon: 'image1.png',
+    type: 'text-multi',
+    question: 'Отгадай, чьи это традиции. Страны: Великобритания, Германия, Дания, Испания, Италия, Польша, Эквадор',
+    items: [
+        { question: 'Выбрасывают старую мебель и ненужные вещи из окон, символизируя начало нового этапа', answers: ['Италия']},
+        { question: 'Прыгают с дивана или стула «в новый год» в полночь', answers: ['Германия']},
+        { question: 'Бьют посуду о двери друзей и родственников — чем больше осколков, тем больше удачи в новом году', answers: ['Дания']}, 
+        { question: 'Сжигают чучело «старого года» — символ избавления от проблем и неудач', answers: ['Эквадор']}, 
+        { question: 'На следующий день после Рождества дарят подарки обслуживающему персоналу', answers: ['Великобритания']}, 
+        { question: 'В полночь съедают 12 виноградин — по одной на каждый удар часов', answers: ['Испания']},
+        { question: 'На столе должно быть 12 блюд — по числу месяцев в году, каждое нужно попробовать', answers: ['Польша']} 
+    ]
+},
     {number:29,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
-    {number:30,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
+    {
+    number: 30,
+    imageIcon: 'image1.png',
+    type: 'text-multi',
+    question: 'Вспомни, откуда каждый из зимних волшебников',
+    items: [
+        { question: 'Дед Мороз', answers: ['Россия']},
+        { question: 'Синтерклаас', answers: ['Нидерланды']},
+        { question: 'Шэн Дань Лаожэнь', answers: ['Китай']},
+        { question: 'Пер Ноэль', answers: ['Франция']}, 
+        { question: 'Вайнахтсман', answers: ['Германия']}, 
+        { question: 'Дзёдзи-сан', answers: ['Япония']},
+        { question: 'Бабо Натале', answers: ['Италия']}
+    ]
+},
     {number:31,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай ребус',answer:['Открываем календарь, начинается январь','Открываем календарь начинается январь'],imageUrl:'im31.1.png'},
 ];
 let gameState = {currentLevel:1,completedLevels:[]};
@@ -1295,6 +1633,8 @@ function openRiddle(riddle){
         setupImageMulti(riddle);
     } else if(riddle.type === 'text-multi'){
         setupTextMulti(riddle);
+    } else if (riddle.type === 'multi-audio') { 
+        setupMultiAudio(riddle);
     } else if(riddle.type === 'wordsearch'){
         setupWordsearch(riddle);
         const gridSection = document.getElementById('grid-section');
@@ -1970,6 +2310,300 @@ function checkMatch(){
 
 let ws_selected=[];
 let ws_found=new Set();
+
+function setupMultiAudio(riddle) {
+    const container = document.createElement('div');
+    container.id = 'audio-multi-container';
+    container.className = 'multi-text-container';
+
+    if (!riddle.__solved) {
+        riddle.__solved = Array(riddle.items.length).fill(false);
+    }
+    if (!riddle.__answers) {
+        riddle.__answers = Array(riddle.items.length).fill('');
+    }
+
+    riddle.items.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'multi-text-item';
+
+        // Контейнер для аудиоплеера
+        const audioContainer = document.createElement('div');
+        audioContainer.className = 'audio-container';
+
+        // Аудиоплеер
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'audio-player';
+
+        // Заголовок аудио (номер)
+        const audioTitle = document.createElement('div');
+        audioTitle.className = 'audio-title';
+        audioTitle.textContent = `Аудио ${index + 1}`;
+        playerDiv.appendChild(audioTitle);
+
+        // Элементы управления
+        const controls = document.createElement('div');
+        controls.className = 'audio-controls';
+
+        // Кнопка воспроизведения
+        const playBtn = document.createElement('button');
+        playBtn.className = 'audio-play-btn';
+        playBtn.innerHTML = '▶';
+        playBtn.dataset.index = index;
+
+        // Прогресс-бар
+        const progress = document.createElement('div');
+        progress.className = 'audio-progress';
+        const progressBar = document.createElement('div');
+        progressBar.className = 'audio-progress-bar';
+        progress.appendChild(progressBar);
+
+        // Время
+        const timeDisplay = document.createElement('div');
+        timeDisplay.className = 'audio-time';
+        timeDisplay.textContent = '0:00 / 0:00';
+
+        controls.appendChild(playBtn);
+        controls.appendChild(progress);
+        controls.appendChild(timeDisplay);
+        playerDiv.appendChild(controls);
+
+        // Аудио элемент (скрытый)
+        const audio = document.createElement('audio');
+        audio.src = item.audio;
+        audio.preload = 'metadata';
+        audio.dataset.index = index;
+
+        // Поле для ввода ответа
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'multi-text-input';
+        input.placeholder = 'Что вы услышали? Введите ответ...';
+        input.dataset.index = index;
+
+        // Обрабатываем как answer (строка), так и answers (массив)
+        const correctAnswers = Array.isArray(item.answers) ? item.answers : [item.answer];
+        input.dataset.correctAnswer = correctAnswers.join('|');
+
+        if (riddle.__answers[index]) {
+            input.value = riddle.__answers[index];
+            if (riddle.__solved[index]) {
+                input.classList.add('correct');
+                input.readOnly = true;
+                playBtn.disabled = true;
+                playBtn.style.opacity = '0.5';
+            }
+        }
+
+        // Обработка воспроизведения аудио
+        playBtn.addEventListener('click', function() {
+            const idx = parseInt(this.dataset.index);
+            const allAudios = document.querySelectorAll('audio');
+            
+            // Останавливаем все другие аудио
+            allAudios.forEach(a => {
+                if (a.dataset.index != idx) {
+                    a.pause();
+                    a.currentTime = 0;
+                    const otherBtn = document.querySelector(`.audio-play-btn[data-index="${a.dataset.index}"]`);
+                    if (otherBtn) {
+                        otherBtn.innerHTML = '▶';
+                        otherBtn.classList.remove('playing');
+                    }
+                }
+            });
+
+            if (audio.paused) {
+                audio.play();
+                this.innerHTML = '⏸';
+                this.classList.add('playing');
+            } else {
+                audio.pause();
+                this.innerHTML = '▶';
+                this.classList.remove('playing');
+            }
+        });
+
+        // Обновление прогресса
+        audio.addEventListener('timeupdate', function() {
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = progressPercent + '%';
+            
+            const currentTime = formatTime(audio.currentTime);
+            const duration = formatTime(audio.duration);
+            timeDisplay.textContent = `${currentTime} / ${duration}`;
+        });
+
+        // Сброс кнопки при окончании воспроизведения
+        audio.addEventListener('ended', function() {
+            const btn = document.querySelector(`.audio-play-btn[data-index="${this.dataset.index}"]`);
+            if (btn) {
+                btn.innerHTML = '▶';
+                btn.classList.remove('playing');
+            }
+        });
+
+        // Клик по прогресс-бару для перемотки
+        progress.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        });
+
+        // Проверка ответа при нажатии Enter
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const idx = parseInt(this.dataset.index);
+                const userAnswer = normalizeText(this.value);
+                const correctAnswers = this.dataset.correctAnswer.split('|').map(a => normalizeText(a));
+
+                const oldMessage = this.parentNode.querySelector('.input-result');
+                if (oldMessage) oldMessage.remove();
+
+                if (userAnswer && correctAnswers.includes(userAnswer)) {
+                    this.classList.add('correct');
+                    this.classList.remove('incorrect');
+                    this.readOnly = true;
+                    riddle.__solved[idx] = true;
+                    riddle.__answers[idx] = this.value;
+
+                    // Отключаем кнопку воспроизведения
+                    const playBtn = document.querySelector(`.audio-play-btn[data-index="${idx}"]`);
+                    if (playBtn) {
+                        playBtn.disabled = true;
+                        playBtn.style.opacity = '0.5';
+                    }
+
+                    // Останавливаем аудио
+                    const audio = document.querySelector(`audio[data-index="${idx}"]`);
+                    if (audio) {
+                        audio.pause();
+                        audio.currentTime = 0;
+                    }
+
+                    // Сохраняем состояние
+                    saveRiddleStates();
+
+                    showInputResult(this, '✅ Верно!', 'success');
+
+                    // Переход к следующему нерешенному
+                    const nextIndex = idx + 1;
+                    if (nextIndex < riddle.items.length) {
+                        const nextInput = document.querySelector(`.multi-text-input[data-index="${nextIndex}"]`);
+                        const nextAudio = document.querySelector(`audio[data-index="${nextIndex}"]`);
+                        if (nextInput && !nextInput.readOnly) {
+                            nextInput.focus();
+                            // Автовоспроизведение следующего аудио
+                            if (nextAudio) {
+                                setTimeout(() => {
+                                    nextAudio.play();
+                                    const nextBtn = document.querySelector(`.audio-play-btn[data-index="${nextIndex}"]`);
+                                    if (nextBtn) {
+                                        nextBtn.innerHTML = '⏸';
+                                        nextBtn.classList.add('playing');
+                                    }
+                                }, 500);
+                            }
+                        }
+                    } else {
+                        if (riddle.__solved.every(Boolean)) {
+                            markSolved(riddle);
+                            showSuccess();
+                        }
+                    }
+                } else if (userAnswer) {
+                    this.classList.add('incorrect');
+                    this.classList.remove('correct');
+                    showInputResult(this, '❌ Неверно', 'error');
+                }
+            }
+        });
+
+        audioContainer.appendChild(playerDiv);
+        audioContainer.appendChild(audio);
+        
+        itemDiv.appendChild(audioContainer);
+        itemDiv.appendChild(input);
+        container.appendChild(itemDiv);
+    });
+
+    // Кнопка проверки всех ответов
+    const checkButton = document.createElement('button');
+    checkButton.className = 'submit-button';
+    checkButton.textContent = 'Проверить все ответы';
+    checkButton.onclick = () => checkMultiAudioAnswers(riddle);
+    container.appendChild(checkButton);
+
+    document.getElementById('text-multi-section').appendChild(container);
+    document.getElementById('text-multi-section').style.display = 'block';
+}
+
+// Вспомогательная функция для форматирования времени
+function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Функция проверки всех ответов для multi-audio
+function checkMultiAudioAnswers(riddle) {
+    const inputs = document.querySelectorAll('.multi-text-input');
+    let allCorrect = true;
+
+    inputs.forEach((input, index) => {
+        const userAnswer = normalizeText(input.value);
+        const correctAnswers = input.dataset.correctAnswer.split('|').map(a => normalizeText(a));
+
+        riddle.__answers[index] = input.value;
+
+        const oldMessage = input.parentNode.querySelector('.input-result');
+        if (oldMessage) oldMessage.remove();
+
+        if (userAnswer !== '') {
+            if (correctAnswers.includes(userAnswer)) {
+                input.classList.add('correct');
+                input.classList.remove('incorrect');
+                input.readOnly = true;
+                riddle.__solved[index] = true;
+
+                // Отключаем кнопку воспроизведения
+                const playBtn = document.querySelector(`.audio-play-btn[data-index="${index}"]`);
+                if (playBtn) {
+                    playBtn.disabled = true;
+                    playBtn.style.opacity = '0.5';
+                }
+
+                // Останавливаем аудио
+                const audio = document.querySelector(`audio[data-index="${index}"]`);
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+
+                showInputResult(input, '✅ Верно!', 'success');
+            } else {
+                input.classList.add('incorrect');
+                input.classList.remove('correct');
+                allCorrect = false;
+                riddle.__solved[index] = false;
+                showInputResult(input, '❌ Неверно', 'error');
+            }
+        }
+    });
+
+    // Сохраняем состояние
+    saveRiddleStates();
+
+    // Проверяем, все ли ответы заполнены и правильны
+    const allAnswered = Array.from(inputs).every(input => normalizeText(input.value) !== '');
+    const allSolved = riddle.__solved.every(Boolean);
+
+    if (allAnswered && allSolved) {
+        markSolved(riddle);
+        showSuccess();
+    }
+}
 
 function setupWordsearch(r){
     ws_selected=[];
