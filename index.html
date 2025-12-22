@@ -1055,7 +1055,7 @@ const riddles = [
             { image: 'im7.7.png', answers: ['Первая Олимпиада', 'Прошла Первая Олимпиада', 'состоялась Первая Олимпиада', 'Первые олимпийские игры', 'Прошли олимпийские игры', 'состоялись первые олимпийские игры', 'олимпийские игры', 'олимпиада']}
         ]
 },
-    {number:4,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answer:['снегопад'],imageUrl:'im4.1.png'},
+    {number:4,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answers:['снегопад'],imageUrl:'im4.1.png'},
     {
         number: 5,
         imageIcon:'image1.png',
@@ -1129,7 +1129,7 @@ const riddles = [
             { image: 'im10.4.png', answers: ['Земля в иллюминаторе','Трава у дома']},
         ]
     },
-    {number:11,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answer:['атмосфера'],imageUrl:'im11.1.png'},
+    {number:11,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answers:['атмосфера'],imageUrl:'im11.1.png'},
      {
         number: 12,
         imageIcon:'image1.png',
@@ -1185,7 +1185,7 @@ const riddles = [
         { question: 'Аналог этого оксюморона есть не только в странах бывшей Югославии, что не очень удивительно, но и в Швейцарии. Причем если у нас он появился после 1918 года, то в Швейцарии — лет на двести раньше. Назовите этот оксюморон.', answers: ['Старый новый год']}
         ]
     },
-    {number:16,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answer:['волшебство'],imageUrl:'im16.1.png'},
+    {number:16,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай слово',answers:['волшебство'],imageUrl:'im16.1.png'},
     {
         number: 17,
         imageIcon:'image1.png',
@@ -1303,7 +1303,8 @@ const riddles = [
         }
     ]
 }, 
-    {number:26,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
+    {number:26,imageIcon:'image1.png',type:'riddle-image',question:'Реши логическую задачу. Ответ введи в формате \"волшебник - страна - одежда - подарки\". Если не получается - напиши \"телеграм\" и скинь мне свое решение', answers:['Дед Мороз - США - красный костюм - игрушки, Санта-Клаус - Финляндия - синий плащ - сладости, Йоулупукки - Россия - шуба - книги', 'в телеграм'], imageUrl:'im26.1.png'},
+    
     {
         number: 27,
         imageIcon:'image1.png',
@@ -1333,7 +1334,18 @@ const riddles = [
         { question: 'На столе должно быть 12 блюд — по числу месяцев в году, каждое нужно попробовать', answers: ['Польша']} 
     ]
 },
-    {number:29,imageIcon:'image1.png',type:'text',question:'В красивой бумаге, с бантом, его все ждут под ёлкой. Что это?',answer:'подарок'},
+    {
+        number: 29,
+        imageIcon:'image1.png',
+        type: 'image-multi',
+        question: 'Отгадай слово',
+        items: [
+            { image: 'im29.1.png', answers: ['традиция']},
+            { image: 'im29.2.png', answers: ['выходной']},
+            { image: 'im29.3.png', answers: ['колокольчик']}
+        ]
+    },
+    
     {
     number: 30,
     imageIcon: 'image1.png',
@@ -1349,7 +1361,7 @@ const riddles = [
         { question: 'Бабо Натале', answers: ['Италия']}
     ]
 },
-    {number:31,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай ребус',answer:['Открываем календарь, начинается январь','Открываем календарь начинается январь'],imageUrl:'im31.1.png'},
+    {number:31,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай ребус',answers:['Открываем календарь, начинается январь','Открываем календарь начинается январь'],imageUrl:'im31.1.png'},
 ];
 let gameState = {currentLevel:1,completedLevels:[]};
 
@@ -2153,7 +2165,21 @@ function checkAnswer(){
     const val = normalizeText(input.value);
     if(!val) return;
 
-    const accepted = Array.isArray(r.answer) ? r.answer : [r.answer];
+    let accepted = [];
+    if (Array.isArray(r.answers)) {
+        // Новый формат: riddle с answers массивом
+        accepted = r.answers;
+    } else if (Array.isArray(r.answer)) {
+        // Старый формат: riddle с answer массивом
+        accepted = r.answer;
+    } else if (r.answer) {
+        // Старый формат: riddle с answer строкой
+        accepted = [r.answer];
+    } else {
+        // На всякий случай
+        accepted = [];
+    }
+    
     const normalizedAccepted = accepted.map(a => normalizeText(a));
 
     if(normalizedAccepted.includes(val)){
