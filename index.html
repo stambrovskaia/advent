@@ -957,6 +957,180 @@ body {
     border: 1px solid var(--border-light);
 } 
 
+/* Минималистичный снегопад */
+#snowfall-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+    overflow: hidden;
+}
+
+.snowflake {
+    position: absolute;
+    top: -20px;
+    color: white;
+    font-size: 1em;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+    user-select: none;
+    animation-name: snowfall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Минималистичный поп-ап */
+#celebration-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#celebration-content {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    color: #1a1a1a;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.celebration-icon {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    display: block;
+    animation: bounce 1s ease infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-10px); }
+}
+
+.celebration-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+}
+
+.celebration-message {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    color: #666;
+    font-weight: 400;
+}
+
+/* Кнопка закрытия */
+.celebration-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.celebration-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+@media (max-width: 600px) {
+    #celebration-content {
+        padding: 30px 20px;
+    }
+    
+    .celebration-title {
+        font-size: 1.8rem;
+    }
+    
+    .celebration-icon {
+        font-size: 3rem;
+    }
+}
+
+/* Темно-синий фон для завершения */
+body.completed-all {
+    background: linear-gradient(135deg, #0a1929 0%, #1a3a5f 100%);
+    transition: background 1s ease;
+}
+
+/* Снежинки для темного фона - делаем ярче */
+body.completed-all .snowflake {
+    color: white;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.9),
+                 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Обновляем стили окон для темного фона */
+body.completed-all .window {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.completed-all .window.completed {
+    border-color: rgba(16, 185, 129, 0.5);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+body.completed-all .window.available {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.completed-all .header h1 {
+    color: white;
+    text-shadow: 0 0 10px rgba(179, 224, 255, 0.3);
+}
+
+body.completed-all .header p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body.completed-all .header p:last-of-type {
+    color: rgba(255, 255, 255, 0.6);
+}
+
 </style>
 </head>
 <body>
@@ -1009,6 +1183,24 @@ body {
         </div>
     </div>
 </div>
+
+<!-- Snowfall Container -->
+<div id="snowfall-container"></div>
+
+<!-- Celebration Popup -->
+<div id="celebration-modal">
+    <div id="celebration-content">
+        <div class="celebration-close" onclick="closeCelebration()">×</div>
+        <span class="celebration-icon">🎉</span>
+        <h1 class="celebration-title">Поздравляю!</h1>
+        <div class="celebration-message">
+            Все загадки успешно разгаданы! <br>
+            Пусть умение решать сложные задачки помогает тебе и в жизни! <br>
+            Увидимся в следующем году! 🎄
+        </div>
+    </div>
+</div>
+
 
 <script>
 // ====== Data ======
@@ -1363,6 +1555,7 @@ const riddles = [
 },
     {number:31,imageIcon:'image1.png',type:'riddle-image',question:'Отгадай ребус',answers:['Открываем календарь, начинается январь','Открываем календарь начинается январь'],imageUrl:'im31.1.png'},
 ];
+
 let gameState = {currentLevel:1,completedLevels:[]};
 
 
@@ -2264,6 +2457,16 @@ function markSolved(r){
 
         // Отправляем обновленные параметры пользователя
         sendYMUserParams();
+        
+         setTimeout(() => {
+            if (checkAllRiddlesSolved()) {
+                console.log("🎉 ВСЕ ЗАГАДКИ РЕШЕНЫ! Запускаем праздник...");
+                // Даем время на анимацию "Верно!"
+                setTimeout(showCelebration, 1000);
+            }
+        }, 500);
+
+
     }
 }
 
@@ -2870,6 +3073,215 @@ function loadYandexMetrica() {
 }
 
 
+
+// Сохраняем оригинальную функцию markSolved
+const originalMarkSolvedFunction = function(r) {
+    if(!gameState.completedLevels.includes(r.number)){
+        gameState.completedLevels.push(r.number);
+        saveGameState();
+        saveRiddleStates();
+        createWindows();
+        sendYMEvent('riddle_solved', {
+            'riddle_number': r.number,
+            'riddle_type': r.type,
+            'total_solved': gameState.completedLevels.length,
+            'completion_percentage': Math.round((gameState.completedLevels.length / riddles.length) * 100)
+        });
+        
+        // После сохранения проверяем, все ли решено
+        setTimeout(() => {
+            if (checkAllRiddlesSolved()) {
+                // Ждем 1 секунду и показываем праздник
+                setTimeout(showCelebration, 1000);
+            }
+        }, 500);
+    }
+};
+
+// Присваиваем новую функцию
+window.markSolved = originalMarkSolvedFunction;
+
+function startSnowfall() {
+    const container = document.getElementById('snowfall-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Создаем снежинки (разные типы для разнообразия)
+    const snowflakes = ['❄', '❅', '❆', '✦', '✶', '•', '·'];
+    const numSnowflakes = 120; // Немного больше снежинок
+    
+    for (let i = 0; i < numSnowflakes; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+        
+        // Случайные параметры для естественного вида
+        const left = Math.random() * 100;
+        const size = Math.random() * 1.5 + 0.8;
+        const duration = Math.random() * 10 + 8;
+        const delay = Math.random() * 5;
+        const opacity = Math.random() * 0.5 + 0.5;
+        
+        // Немного покачивания из стороны в сторону
+        const sway = Math.random() * 20 - 10;
+        
+        snowflake.style.left = `${left}%`;
+        snowflake.style.fontSize = `${size}em`;
+        snowflake.style.animation = `snowfall ${duration}s linear ${delay}s infinite`;
+        snowflake.style.opacity = opacity;
+        
+        // Добавляем индивидуальную анимацию для каждой снежинки
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes snowfall_${i} {
+                0% {
+                    transform: translateY(0) translateX(0) rotate(0deg);
+                    opacity: ${opacity};
+                }
+                100% {
+                    transform: translateY(100vh) translateX(${sway}px) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        snowflake.style.animation = `snowfall_${i} ${duration}s linear ${delay}s infinite`;
+        
+        container.appendChild(snowflake);
+    }
+}
+
+function changeBackgroundToBlue() {
+    const body = document.body;
+    
+    // Удаляем все фоновые цвета, которые могли быть
+    body.style.background = '';
+    
+    // Добавляем класс с анимацией
+    body.classList.add('completed-all');
+    
+    // Добавляем дополнительный градиент поверх
+    const overlay = document.createElement('div');
+    overlay.id = 'bg-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, 
+            rgba(10, 25, 41, 0.8) 0%, 
+            rgba(26, 58, 95, 0.9) 100%);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 1.5s ease;
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Плавное появление
+    setTimeout(() => {
+        overlay.style.opacity = '1';
+    }, 50);
+}
+
+function showCelebration() {
+    console.log("Запуск праздничного режима...");
+    console.log("1. Меняем фон...");
+    
+    // Меняем фон на темно-синий с анимацией
+    changeBackgroundToBlue();
+    
+    console.log("2. Запускаем снегопад...");
+    // Запускаем снегопад
+    startSnowfall();
+    
+    console.log("3. Показываем поп-ап...");
+    
+    // Показываем поп-ап с небольшой задержкой
+    setTimeout(() => {
+        const modal = document.getElementById('celebration-modal');
+        console.log("4. Модальное окно найдено?", !!modal);
+        if (modal) {
+            console.log("5. Показываем модальное окно...");
+            modal.style.display = 'flex';
+            
+            // Проверим видимость
+            setTimeout(() => {
+                console.log("6. Стили окна после показа:", {
+                    display: modal.style.display,
+                    opacity: modal.style.opacity,
+                    visibility: modal.style.visibility
+                });
+                console.log("7. Видим ли окно?", modal.offsetParent !== null);
+            }, 100);
+            
+            // Автоматически закроем через 10 секунд
+            setTimeout(() => {
+                console.log("8. Автозакрытие...");
+                closeCelebration();
+            }, 100000);
+            
+            // Отправляем событие в Яндекс.Метрику
+            sendYMEvent('all_riddles_solved', {
+                'total_riddles': riddles.length
+            });
+        } else {
+            console.error("Элемент celebration-modal не найден!");
+        }
+    }, 800);
+}
+
+function closeCelebration() {
+    const modal = document.getElementById('celebration-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    // Снегопад остается на синем фоне
+}
+
+
+
+function checkAllRiddlesSolved() {
+    const totalRiddles = riddles.length;
+
+    
+    // Проверяем все загадки
+    for (let i = 0; i < riddles.length; i++) {
+        const r = riddles[i];
+        
+        // Проверяем, решена ли загадка
+        if (!gameState.completedLevels.includes(r.number)) {
+            return false;
+        }
+        
+        // Дополнительная проверка для image-multi
+        if (r.type === 'image-multi') {
+            if (!r.__slideSolved || !r.__slideSolved.every(Boolean)) {
+                return false;
+            }
+        }
+        
+        // Дополнительная проверка для text-multi
+        if (r.type === 'text-multi') {
+            if (!r.__solved || !r.__solved.every(Boolean)) {
+                return false;
+            }
+        }
+        
+        // Дополнительная проверка для multi-audio
+        if (r.type === 'multi-audio') {
+            if (!r.__solved || !r.__solved.every(Boolean)) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
 function init(){
     console.log('Страница загружена');
     console.log('YM доступен:', typeof ym !== 'undefined');
@@ -2882,7 +3294,18 @@ function init(){
 
     loadGameState();
     createWindows();
+     setTimeout(() => {
+        if (checkAllRiddlesSolved()) {
+            console.log("Все загадки уже решены! Активируем праздничный режим...");
+            // Ждем немного и активируем
+            setTimeout(() => {
+                changeBackgroundToBlue();
+                showCelebration();
+            }, 0);
+        }
+    }, 0);
 
+    
     document.getElementById('modal-close').addEventListener('click', function() {
         sendYMEvent('modal_closed', {
             'current_riddle': window.currentRiddle ? window.currentRiddle.number : null
