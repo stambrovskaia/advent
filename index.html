@@ -406,7 +406,7 @@ body {
     transform: scale(1.05);
 }
 
-/* Slider components */
+/* Slider components - ИСПРАВЛЕННЫЕ СТИЛИ */
 .slider-container {
     position: relative;
     width: 100%;
@@ -420,7 +420,7 @@ body {
 .slider-image {
     width: 100%;
     max-height: 300px;
-    object-fit: contain;
+    object-fit: contain; /* Важно: contain вместо cover */
     border-radius: var(--radius-md);
     background: var(--bg-secondary);
     border: none;
@@ -430,28 +430,76 @@ body {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 28px;
+    font-size: 20px; /* Уменьшили размер шрифта */
     color: var(--text-primary);
-    font-weight: 300;
+    font-weight: 500;
     cursor: pointer;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: var(--radius-md);
+    padding: 6px 10px; /* Уменьшили отступы */
+    background: rgba(255, 255, 255, 0.95); /* Более прозрачный фон */
+    border-radius: 50%; /* Круглые кнопки */
     user-select: none;
     border: none;
     z-index: 5;
     backdrop-filter: blur(4px);
     border: 1px solid var(--border-light);
+    width: 36px; /* Фиксированная ширина */
+    height: 36px; /* Фиксированная высота */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .slider-btn:hover {
-    background: rgba(255, 255, 255, 1);
+    background: var(--accent-primary);
+    color: white;
     box-shadow: var(--shadow-md);
 }
 
-.slider-btn.left { left: 12px; }
-.slider-btn.right { right: 12px; }
+.slider-btn.left { 
+    left: 8px; /* Уменьшили отступ от края */
+}
 
+.slider-btn.right { 
+    right: 8px; /* Уменьшили отступ от края */
+}
+
+/* Для мобильных устройств сделаем кнопки еще меньше */
+@media (max-width: 600px) {
+    .slider-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        padding: 4px 8px;
+    }
+    
+    .slider-btn.left { 
+        left: 6px;
+    }
+    
+    .slider-btn.right { 
+        right: 6px;
+    }
+    
+    .slider-image {
+        max-height: 250px; /* Уменьшим максимальную высоту для мобильных */
+    }
+}
+
+/* Если изображения высокие, добавляем вертикальные отступы */
+.slider-container.with-tall-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+}
+
+.slider-container.with-tall-image .slider-image {
+    max-height: 350px;
+    width: auto;
+    max-width: 100%;
+}
+    
 .multi-input {
     width: 100%;
     padding: 12px 16px;
