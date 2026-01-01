@@ -1719,20 +1719,17 @@ function getCurrentMoscowDate() {
 }
 
 function getAvailableRiddlesCount() {
-    const currentDate = getCurrentMoscowDate();
-    const currentDay = currentDate.getDate();
-    const currentMonth = currentDate.getMonth();
-
-    if (currentMonth !== 11) {
-        return 1;
-    }
-
-    return Math.min(currentDay, riddles.length);
+    return riddles.length; // Все загадки доступны сразу
 }
 
 function updateAvailableLevels() {
     const availableCount = getAvailableRiddlesCount();
     gameState.currentLevel = availableCount;
+    
+    // Дополнительная проверка на случай сохраненного состояния
+    if (gameState.currentLevel < availableCount) {
+        gameState.currentLevel = availableCount;
+    }
 }
 
 function normalizeText(s){
